@@ -43,3 +43,4 @@ next-env.d.ts
 # internal tooling & working sources (not distributed)
 /scripts/
 /data/master_repo_list.md
+.tmp-prompts/
