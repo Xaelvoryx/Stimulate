@@ -3,10 +3,11 @@ import { Hero } from "@/components/dashboard/Hero";
 import { FeaturedSkills } from "@/components/dashboard/FeaturedSkills";
 import { CategoryGrid } from "@/components/dashboard/CategoryGrid";
 import { PublisherStrip } from "@/components/dashboard/PublisherStrip";
+import { PromptsSection } from "@/components/dashboard/PromptsSection";
 import { HowItWorks } from "@/components/dashboard/HowItWorks";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { Explorer } from "@/components/explorer/Explorer";
-import { loadDataset } from "@/lib/data/loadData";
+import { loadDataset, loadPromptDataset } from "@/lib/data/loadData";
 import type { ItemType } from "@/types";
 
 const ALLOWED_TYPES = new Set<ItemType>(["skill", "mcp", "agent"]);
@@ -84,6 +85,7 @@ function cleanText(value?: string): string | undefined {
 
 export default function Home() {
   const data = loadDataset();
+  const promptData = loadPromptDataset();
 
   const filteredItems = data.items
     .filter(
@@ -157,6 +159,7 @@ export default function Home() {
         <FeaturedSkills dataset={pageData} />
         <CategoryGrid dataset={pageData} />
         <PublisherStrip dataset={pageData} />
+        <PromptsSection totalPrompts={promptData.totalPrompts} />
         <Explorer items={explorerItems} publishers={pageData.publishers} />
         <HowItWorks />
       </main>
