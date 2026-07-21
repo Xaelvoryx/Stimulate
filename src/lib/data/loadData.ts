@@ -14,6 +14,7 @@ const fallbackData: CatalogDataset = {
   },
   sourceReports: [],
   topRepositories: [],
+  publishers: [],
   items: [],
 };
 
@@ -26,7 +27,8 @@ export function loadDataset(): CatalogDataset {
 
   try {
     const raw = fs.readFileSync(DATASET_PATH, "utf8");
-    return JSON.parse(raw) as CatalogDataset;
+    const parsed = JSON.parse(raw) as CatalogDataset;
+    return { ...parsed, publishers: parsed.publishers ?? [] };
   } catch {
     return fallbackData;
   }
