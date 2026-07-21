@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { CatalogItem, CatalogDataset, ItemType } from "@/types";
+import type { ExplorerItem, Publisher, ItemType } from "@/types";
 
 type TabKey = "all" | "skill" | "mcp" | "agent" | "repository";
 
@@ -15,11 +15,11 @@ const tabLabels: Record<TabKey, string> = {
   repository: "Repositories",
 };
 
-function sortItems(items: CatalogItem[]): CatalogItem[] {
+function sortItems(items: ExplorerItem[]): ExplorerItem[] {
   return [...items].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 }
 
-export function Explorer({ dataset }: { dataset: CatalogDataset }) {
+export function Explorer({ items, publishers }: { items: ExplorerItem[]; publishers: Publisher[] }) {
   const [tab, setTab] = useState<TabKey>("all");
   const [search, setSearch] = useState("");
   const [section, setSection] = useState("all");
@@ -27,19 +27,19 @@ export function Explorer({ dataset }: { dataset: CatalogDataset }) {
   const [page, setPage] = useState(1);
 
   const sectionOptions = useMemo(() => {
-    const names = [...new Set(dataset.items.map((item) => item.section).filter(Boolean))] as string[];
+    const names = [...new Set(items.map((item) => item.section).filter(Boolean))] as string[];
     return names.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-  }, [dataset.items]);
+  }, [items]);
 
   const publisherOptions = useMemo(
-    () => dataset.publishers.map((entry) => entry.name),
-    [dataset.publishers],
+    () => publishers.map((entry) => entry.name),
+    [publishers],
   );
 
   const filtered = useMemo(() => {
     const lower = search.trim().toLowerCase();
 
-    const byTab = dataset.items.filter((item) => {
+    const byTab = items.filter((item) => {
       if (tab === "all") return true;
       return item.type === tab;
     });
@@ -61,7 +61,7 @@ export function Explorer({ dataset }: { dataset: CatalogDataset }) {
     });
 
     return sortItems(bySearch);
-  }, [dataset.items, search, section, publisher, tab]);
+  }, [items, search, section, publisher, tab]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount);
@@ -92,12 +92,12 @@ export function Explorer({ dataset }: { dataset: CatalogDataset }) {
   }
 
   const countByType: Record<ItemType | "all", number> = {
-    all: dataset.items.length,
-    skill: dataset.items.filter((item) => item.type === "skill").length,
-    mcp: dataset.items.filter((item) => item.type === "mcp").length,
-    agent: dataset.items.filter((item) => item.type === "agent").length,
-    repository: dataset.items.filter((item) => item.type === "repository").length,
-    other: dataset.items.filter((item) => item.type === "other").length,
+    all: items.length,
+    skill: items.filter((item) => item.type === "skill").length,
+    mcp: items.filter((item) => item.type === "mcp").length,
+    agent: items.filter((item) => item.type === "agent").length,
+    repository: items.filter((item) => item.type === "repository").length,
+    other: items.filter((item) => item.type === "other").length,
   };
 
   return (
@@ -108,7 +108,7 @@ export function Explorer({ dataset }: { dataset: CatalogDataset }) {
           <h2>Explore the Catalog</h2>
           <p>
             Search every entry by name, description, or URL, and filter by type
-            and category across all {dataset.items.length.toLocaleString()} entries.
+            and category across all {items.length.toLocaleString()} entries.
           </p>
         </div>
 
