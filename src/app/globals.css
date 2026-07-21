@@ -658,13 +658,91 @@ a:hover {
   -webkit-line-clamp: 2;
 }
 
-.prompt-box {
-  margin-top: 10px;
+.prompt-view-btn,
+.prompt-close {
+  font-family: var(--font-mono);
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.prompt-view-btn {
+  margin-left: auto;
+}
+
+.prompt-view-btn:hover,
+.prompt-close:hover {
+  border-color: var(--brand);
+}
+
+.prompt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.prompt-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(4, 10, 8, 0.72);
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+}
+
+.prompt-modal-panel {
+  position: relative;
+  z-index: 1;
+  width: min(920px, 96vw);
+  border: 1px solid var(--line-2);
+  background: linear-gradient(180deg, var(--surface), var(--bg-2));
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.prompt-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.prompt-modal-head > div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.prompt-modal-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.prompt-modal-body {
   border: 1px solid var(--line);
   background: var(--bg-2);
-  padding: 12px;
-  max-height: 270px;
-  overflow: auto;
+  padding: 16px;
+}
+
+.prompt-modal-body pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  line-height: 1.65;
+  color: var(--ink);
 }
 
 .prompt-box pre {
@@ -777,6 +855,9 @@ a:hover {
   .filter-row input {
     grid-column: 1 / -1;
   }
+  .prompt-modal-panel {
+    width: min(94vw, 920px);
+  }
 }
 
 @media (max-width: 760px) {
@@ -803,4 +884,8 @@ a:hover {
   .filter-row input { grid-column: auto; }
   .footer-grid { grid-template-columns: 1fr; }
   .section { padding: 46px 0; }
+  .prompt-modal-panel {
+    width: 100%;
+    padding: 14px;
+  }
 }
