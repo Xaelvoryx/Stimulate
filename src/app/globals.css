@@ -364,6 +364,17 @@ a:hover {
   border-color: transparent;
   color: var(--accent);
 }
+.badge-pub {
+  background: var(--brand-soft);
+  border-color: transparent;
+  color: var(--brand);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .rank-tag {
   margin-left: auto;
   font-family: var(--font-mono);
@@ -461,6 +472,41 @@ a:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ---------- Publisher strip ---------- */
+.publisher-strip .pub-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.pub-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 8px 14px;
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+.pub-chip:hover {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  transform: translateY(-2px);
+}
+.pub-chip .pub-name {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.pub-chip .pub-count {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--brand);
+  background: var(--brand-soft);
+  border-radius: 999px;
+  padding: 2px 8px;
 }
 
 /* ---------- How it works ---------- */
