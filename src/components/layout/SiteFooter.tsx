@@ -9,7 +9,7 @@ export function SiteFooter() {
             <h3>Stimulate</h3>
             <p>
               The curated directory for AI agent skills, MCP servers, agents, and
-              repositories. Find, compare, and open the building blocks that
+              prompts. Find, compare, and use the building blocks that
               supercharge your workflow.
             </p>
           </div>
@@ -20,12 +20,13 @@ export function SiteFooter() {
             <a href="#explore">Skills</a>
             <a href="#explore">MCP Servers</a>
             <a href="#explore">Agents</a>
+            <a href="#prompts">Prompts</a>
           </div>
 
           <div className="footer-col">
             <h4>Discover</h4>
             <a href="#categories">Categories</a>
-            <a href="#explore">Repositories</a>
+            <a href="#prompts">Prompt Library</a>
             <a href="#top">Back to Top</a>
           </div>
 
@@ -38,7 +39,7 @@ export function SiteFooter() {
 
         <div className="footer-bottom">
           <span>© {year} Stimulate · The Complete AI Builder Catalog</span>
-          <span>Skills · MCP Servers · Agents · Repositories</span>
+          <span>Skills · MCP Servers · Agents · Prompts</span>
         </div>
       </div>
     </footer>

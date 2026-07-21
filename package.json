@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "ingest": "node scripts/ingest/deep-clone.mjs",
-    "ingest:master": "node scripts/ingest/master-list.mjs"
+    "ingest:master": "node scripts/ingest/master-list.mjs",
+    "ingest:prompts": "node scripts/ingest/prompts-from-repos.mjs"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
