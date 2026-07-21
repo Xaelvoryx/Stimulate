@@ -13,6 +13,7 @@ const ALLOWED_TYPES = new Set<ItemType>(["skill", "mcp", "agent"]);
 const ENDPOINT_LIKE = /^\/[a-z0-9][a-z0-9/_?=&.-]*$/i;
 const HANDLE_LIKE = /^@[a-z0-9][a-z0-9._-]{1,}$/i;
 const NUMERIC_HANDLE = /^@?[0-9]{5,}$/;
+const NON_LATIN_CHARS = /[^\p{Script=Latin}\p{N}\p{P}\p{Zs}]/u;
 
 function hasValidDestination(url: string): boolean {
   try {
@@ -46,6 +47,33 @@ function hasUsefulDescription(value?: string): boolean {
   return v.length >= 14;
 }
 
+function isEnglishLike(value?: string): boolean {
+  if (!value) return true;
+
+  const normalized = value
+    .replace(/https?:\/\/\S+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!normalized) return true;
+  return !NON_LATIN_CHARS.test(normalized);
+}
+
+function englishNameOrFallback(name: string, type: ItemType): string {
+  const cleaned = cleanText(name) ?? "";
+  if (cleaned && isEnglishLike(cleaned)) return cleaned;
+
+  if (type === "skill") return "Skill Entry";
+  if (type === "mcp") return "MCP Server Entry";
+  return "Agent Entry";
+}
+
+function englishDescriptionOrFallback(value?: string): string {
+  const cleaned = cleanText(value) ?? "";
+  if (cleaned && isEnglishLike(cleaned)) return cleaned;
+  return "English summary not available. Open to view the source page.";
+}
+
 function cleanText(value?: string): string | undefined {
   if (!value) return value;
   return value
@@ -67,10 +95,10 @@ export default function Home() {
     )
     .map((item) => ({
       ...item,
-      name: cleanText(item.name) ?? item.name,
-      description: cleanText(item.description),
-      section: cleanText(item.section),
-      publisher: cleanText(item.publisher),
+      name: englishNameOrFallback(item.name, item.type),
+      description: englishDescriptionOrFallback(item.description),
+      section: isEnglishLike(item.section) ? cleanText(item.section) : "General",
+      publisher: isEnglishLike(item.publisher) ? cleanText(item.publisher) : undefined,
     }));
 
   const filteredTotals = {
