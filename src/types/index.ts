@@ -6,6 +6,7 @@ export interface CatalogItem {
   type: ItemType;
   sourceId: string;
   sourceName: string;
+  publisher?: string;
   section?: string;
   url: string;
   description?: string;
@@ -36,6 +37,11 @@ export interface RepositoryRank {
   mentions: number;
 }
 
+export interface Publisher {
+  name: string;
+  count: number;
+}
+
 export interface CatalogDataset {
   generatedAt: string;
   requestedSources: string[];
@@ -48,5 +54,6 @@ export interface CatalogDataset {
   };
   sourceReports: SourceReport[];
   topRepositories: RepositoryRank[];
+  publishers: Publisher[];
   items: CatalogItem[];
 }
