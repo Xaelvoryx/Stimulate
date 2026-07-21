@@ -9,17 +9,13 @@ interface PromptsSectionProps {
   totalPrompts: number;
 }
 
-function shorten(value: string, max = 700): string {
-  if (value.length <= max) return value;
-  return `${value.slice(0, max)}\n...`;
-}
-
 export function PromptsSection({ totalPrompts }: PromptsSectionProps) {
   const [search, setSearch] = useState("");
   const [tier, setTier] = useState("all");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activePrompt, setActivePrompt] = useState<PromptItem | null>(null);
   const [data, setData] = useState<PromptQueryResponse>({
     generatedAt: new Date(0).toISOString(),
     totalPrompts,
@@ -76,6 +72,17 @@ export function PromptsSection({ totalPrompts }: PromptsSectionProps) {
 
     return () => controller.abort();
   }, [page, search, tier]);
+
+  useEffect(() => {
+    if (!activePrompt) return;
+
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [activePrompt]);
 
   const pageCount = useMemo(
     () => Math.max(1, Math.ceil(data.totalMatches / Math.max(1, data.pageSize))),
@@ -137,13 +144,11 @@ export function PromptsSection({ totalPrompts }: PromptsSectionProps) {
                 <h3>{item.title}</h3>
                 <p className="card-desc">{item.summary}</p>
 
-                <div className="prompt-box">
-                  <pre>{shorten(item.prompt)}</pre>
-                </div>
-
                 <div className="card-foot">
                   <span className="tag">{item.repo}</span>
-                  <span className="tag">{item.sourcePath}</span>
+                  <button type="button" className="prompt-view-btn" onClick={() => setActivePrompt(item)}>
+                    View Prompt
+                  </button>
                 </div>
               </article>
             ))}
@@ -169,6 +174,40 @@ export function PromptsSection({ totalPrompts }: PromptsSectionProps) {
             Next →
           </button>
         </div>
+
+        {activePrompt ? (
+          <div className="prompt-modal" role="dialog" aria-modal="true" aria-label={activePrompt.title}>
+            <button
+              type="button"
+              className="prompt-modal-backdrop"
+              aria-label="Close prompt"
+              onClick={() => setActivePrompt(null)}
+            />
+            <div className="prompt-modal-panel">
+              <div className="prompt-modal-head">
+                <div>
+                  <span className="badge badge-featured">Prompt</span>
+                  <span className="badge badge-type">{activePrompt.tier}</span>
+                </div>
+                <button type="button" className="prompt-close" onClick={() => setActivePrompt(null)}>
+                  Close
+                </button>
+              </div>
+
+              <h3>{activePrompt.title}</h3>
+              <p className="card-desc">{activePrompt.summary}</p>
+
+              <div className="prompt-modal-meta">
+                <span>{activePrompt.repo}</span>
+                <span>{activePrompt.sourcePath}</span>
+              </div>
+
+              <div className="prompt-modal-body">
+                <pre>{activePrompt.prompt}</pre>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </section>
   );
