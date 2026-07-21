@@ -4,16 +4,102 @@ import { FeaturedSkills } from "@/components/dashboard/FeaturedSkills";
 import { CategoryGrid } from "@/components/dashboard/CategoryGrid";
 import { PublisherStrip } from "@/components/dashboard/PublisherStrip";
 import { HowItWorks } from "@/components/dashboard/HowItWorks";
-import { TopRepositories } from "@/components/dashboard/TopRepositories";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { Explorer } from "@/components/explorer/Explorer";
 import { loadDataset } from "@/lib/data/loadData";
+import type { ItemType } from "@/types";
+
+const ALLOWED_TYPES = new Set<ItemType>(["skill", "mcp", "agent"]);
+const ENDPOINT_LIKE = /^\/[a-z0-9][a-z0-9/_?=&.-]*$/i;
+const HANDLE_LIKE = /^@[a-z0-9][a-z0-9._-]{1,}$/i;
+const NUMERIC_HANDLE = /^@?[0-9]{5,}$/;
+
+function hasValidDestination(url: string): boolean {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+
+    if (u.hostname === "github.com" || u.hostname === "www.github.com") {
+      const segments = u.pathname.split("/").filter(Boolean);
+      // Ignore plain GitHub profile links; keep only repo/deeper paths.
+      return segments.length >= 2;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function hasUsefulName(name: string): boolean {
+  const n = name.trim();
+  if (!n) return false;
+  if (ENDPOINT_LIKE.test(n)) return false;
+  if (HANDLE_LIKE.test(n)) return false;
+  if (NUMERIC_HANDLE.test(n)) return false;
+  if (n.length < 3) return false;
+  return true;
+}
+
+function hasUsefulDescription(value?: string): boolean {
+  const v = (value ?? "").trim();
+  return v.length >= 14;
+}
+
+function cleanText(value?: string): string | undefined {
+  if (!value) return value;
+  return value
+    .replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 export default function Home() {
   const data = loadDataset();
 
+  const filteredItems = data.items
+    .filter(
+      (item) =>
+        ALLOWED_TYPES.has(item.type) &&
+        hasUsefulName(item.name) &&
+        hasUsefulDescription(item.description) &&
+        hasValidDestination(item.url),
+    )
+    .map((item) => ({
+      ...item,
+      name: cleanText(item.name) ?? item.name,
+      description: cleanText(item.description),
+      section: cleanText(item.section),
+      publisher: cleanText(item.publisher),
+    }));
+
+  const filteredTotals = {
+    all: filteredItems.length,
+    skills: filteredItems.filter((item) => item.type === "skill").length,
+    mcps: filteredItems.filter((item) => item.type === "mcp").length,
+    agents: filteredItems.filter((item) => item.type === "agent").length,
+    repositories: 0,
+  };
+
+  const publisherCounts = new Map<string, number>();
+  for (const item of filteredItems) {
+    if (!item.publisher) continue;
+    publisherCounts.set(item.publisher, (publisherCounts.get(item.publisher) ?? 0) + 1);
+  }
+
+  const filteredPublishers = [...publisherCounts.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+
+  const pageData = {
+    ...data,
+    items: filteredItems,
+    totals: filteredTotals,
+    publishers: filteredPublishers,
+  };
+
   // Slim projection keeps the client Explorer payload small (full dataset is ~5 MB).
-  const explorerItems = data.items.map((item) => ({
+  const explorerItems = pageData.items.map((item) => ({
     id: item.id,
     name: item.name,
     type: item.type,
@@ -25,16 +111,15 @@ export default function Home() {
 
   return (
     <div className="page-wrap" id="top">
-      <TopBar dataset={data} />
-      <Hero dataset={data} />
+      <TopBar dataset={pageData} />
+      <Hero dataset={pageData} />
 
       <main>
-        <FeaturedSkills dataset={data} />
-        <CategoryGrid dataset={data} />
-        <PublisherStrip dataset={data} />
-        <Explorer items={explorerItems} publishers={data.publishers} />
+        <FeaturedSkills dataset={pageData} />
+        <CategoryGrid dataset={pageData} />
+        <PublisherStrip dataset={pageData} />
+        <Explorer items={explorerItems} publishers={pageData.publishers} />
         <HowItWorks />
-        <TopRepositories repositories={data.topRepositories} />
       </main>
 
       <SiteFooter />
