@@ -12,6 +12,17 @@ import { loadDataset } from "@/lib/data/loadData";
 export default function Home() {
   const data = loadDataset();
 
+  // Slim projection keeps the client Explorer payload small (full dataset is ~5 MB).
+  const explorerItems = data.items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    type: item.type,
+    url: item.url,
+    description: item.description,
+    section: item.section,
+    publisher: item.publisher,
+  }));
+
   return (
     <div className="page-wrap" id="top">
       <TopBar dataset={data} />
@@ -21,7 +32,7 @@ export default function Home() {
         <FeaturedSkills dataset={data} />
         <CategoryGrid dataset={data} />
         <PublisherStrip dataset={data} />
-        <Explorer dataset={data} />
+        <Explorer items={explorerItems} publishers={data.publishers} />
         <HowItWorks />
         <TopRepositories repositories={data.topRepositories} />
       </main>
