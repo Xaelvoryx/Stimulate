@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Agent Skills, MCP, and AI Agent Hub",
+  title: "Stimulate — AI Agent Skills & MCP Servers Directory",
   description:
-    "A complete catalog of skills, MCP servers, agents, and repositories for AI builders.",
+    "Discover the best AI agent skills, MCP servers, agents, and repositories. A curated directory for Claude Code, Codex, Cursor, Gemini CLI, and more.",
 };
 
 export default function RootLayout({

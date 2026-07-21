@@ -85,91 +85,89 @@ export function Explorer({ dataset }: { dataset: CatalogDataset }) {
   };
 
   return (
-    <section className="panel explorer">
-      <div className="panel-head">
-        <h2>Explore the Catalog</h2>
-        <p>
-          Browse every entry by category, or use the section and search filters
-          to drill down instantly.
-        </p>
-      </div>
+    <section className="section explorer" id="explore">
+      <div className="container">
+        <div className="section-head">
+          <p className="kicker">Full Index</p>
+          <h2>Explore the Catalog</h2>
+          <p>
+            Search every entry by name, description, or URL, and filter by type
+            and category across all {dataset.items.length.toLocaleString()} entries.
+          </p>
+        </div>
 
-      <div className="tab-row">
-        {(Object.keys(tabLabels) as TabKey[]).map((key) => (
-          <button
-            key={key}
-            type="button"
-            className={key === tab ? "tab active" : "tab"}
-            onClick={() => onTabChange(key)}
-          >
-            {tabLabels[key]} ({countByType[key]})
-          </button>
-        ))}
-      </div>
-
-      <div className="filter-row">
-        <input
-          value={search}
-          onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Search name, description, or URL"
-        />
-        <select value={section} onChange={(event) => onSectionChange(event.target.value)}>
-          <option value="all">All Sections</option>
-          {sectionOptions.map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Section</th>
-              <th>Description</th>
-              <th>Link</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleItems.map((item) => (
-              <tr key={item.id}>
-                <td>{item.name}</td>
-                <td>{item.type.toUpperCase()}</td>
-                <td>{item.section || "-"}</td>
-                <td>{item.description || "-"}</td>
-                <td>
-                  <a href={item.url} target="_blank" rel="noopener noreferrer">
-                    Open
-                  </a>
-                </td>
-              </tr>
+        <div className="toolbar">
+          <div className="tab-row">
+            {(Object.keys(tabLabels) as TabKey[]).map((key) => (
+              <button
+                key={key}
+                type="button"
+                className={key === tab ? "tab active" : "tab"}
+                onClick={() => onTabChange(key)}
+              >
+                {tabLabels[key]} ({countByType[key].toLocaleString()})
+              </button>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
 
-      <div className="pagination">
-        <button
-          type="button"
-          disabled={safePage <= 1}
-          onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-        >
-          Prev
-        </button>
-        <span>
-          Page {safePage} / {pageCount} · {filtered.length} matches
-        </span>
-        <button
-          type="button"
-          disabled={safePage >= pageCount}
-          onClick={() => setPage((prev) => Math.min(pageCount, prev + 1))}
-        >
-          Next
-        </button>
+          <div className="filter-row">
+            <input
+              value={search}
+              onChange={(event) => onSearchChange(event.target.value)}
+              placeholder="Search name, description, or URL…"
+            />
+            <select value={section} onChange={(event) => onSectionChange(event.target.value)}>
+              <option value="all">All Categories</option>
+              {sectionOptions.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {visibleItems.length === 0 ? (
+          <p className="empty">No entries match your filters.</p>
+        ) : (
+          <div className="card-grid">
+            {visibleItems.map((item) => (
+              <article className="card" key={item.id}>
+                <div className="card-top">
+                  <span className="badge badge-type">{item.type.toUpperCase()}</span>
+                </div>
+                <h3>{item.name}</h3>
+                <p className="card-desc">{item.description || "Open to explore this entry."}</p>
+                <div className="card-foot">
+                  <span className="tag">{item.section || "General"}</span>
+                  <a href={item.url} target="_blank" rel="noopener noreferrer">
+                    Open →
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
+        <div className="pagination">
+          <button
+            type="button"
+            disabled={safePage <= 1}
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+          >
+            ← Prev
+          </button>
+          <span>
+            Page {safePage} / {pageCount} · {filtered.length.toLocaleString()} matches
+          </span>
+          <button
+            type="button"
+            disabled={safePage >= pageCount}
+            onClick={() => setPage((prev) => Math.min(pageCount, prev + 1))}
+          >
+            Next →
+          </button>
+        </div>
       </div>
     </section>
   );
