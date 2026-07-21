@@ -66,3 +66,43 @@ export interface CatalogDataset {
   publishers: Publisher[];
   items: CatalogItem[];
 }
+
+export interface PromptItem {
+  id: string;
+  title: string;
+  summary: string;
+  prompt: string;
+  repo: string;
+  repoUrl: string;
+  sourcePath: string;
+  tier: string;
+  tags: string[];
+}
+
+export interface PromptSourceReport {
+  repo: string;
+  tier: string;
+  ok: boolean;
+  filesScanned: number;
+  extracted: number;
+  error?: string;
+}
+
+export interface PromptDataset {
+  generatedAt: string;
+  totalRepos: number;
+  extractedRaw: number;
+  totalPrompts: number;
+  sourceReports: PromptSourceReport[];
+  items: PromptItem[];
+}
+
+export interface PromptQueryResponse {
+  generatedAt: string;
+  totalPrompts: number;
+  totalMatches: number;
+  page: number;
+  pageSize: number;
+  tiers: string[];
+  items: PromptItem[];
+}
