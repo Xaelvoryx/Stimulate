@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { ExplorerItem, Publisher, ItemType } from "@/types";
+import type { ExplorerItem, Publisher, PromptItem, PromptQueryResponse } from "@/types";
 
-type TabKey = "all" | "skill" | "mcp" | "agent";
+type TabKey = "all" | "skill" | "mcp" | "agent" | "prompt";
 
 const PAGE_SIZE = 80;
 
@@ -12,6 +12,7 @@ const tabLabels: Record<TabKey, string> = {
   skill: "Skills",
   mcp: "MCP",
   agent: "Agents",
+  prompt: "Prompts",
 };
 
 function sortItems(items: ExplorerItem[]): ExplorerItem[] {
@@ -25,11 +26,30 @@ function fallbackSummary(item: ExplorerItem): string {
   return `${typeLabel}${publisher}${section}. Open to view full details on the source page.`;
 }
 
+function fallbackPromptSummary(item: PromptItem): string {
+  return `${item.tier} prompt from ${item.repo}. Open to view the full prompt.`;
+}
+
 export function Explorer({ items, publishers }: { items: ExplorerItem[]; publishers: Publisher[] }) {
   const [tab, setTab] = useState<TabKey>("all");
   const [search, setSearch] = useState("");
   const [section, setSection] = useState("all");
   const [publisher, setPublisher] = useState("all");
+  const [promptTier, setPromptTier] = useState("all");
+  const [promptSearch, setPromptSearch] = useState("");
+  const [promptPage, setPromptPage] = useState(1);
+  const [promptQuery, setPromptQuery] = useState<PromptQueryResponse>({
+    generatedAt: new Date(0).toISOString(),
+    totalPrompts: 0,
+    totalMatches: 0,
+    page: 1,
+    pageSize: PAGE_SIZE,
+    tiers: [],
+    items: [],
+  });
+  const [promptLoading, setPromptLoading] = useState(false);
+  const [promptError, setPromptError] = useState("");
+  const [activePrompt, setActivePrompt] = useState<PromptItem | null>(null);
   const [page, setPage] = useState(1);
   const [translations, setTranslations] = useState<Record<string, string>>({});
 
@@ -69,6 +89,58 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
 
     return sortItems(bySearch);
   }, [items, search, section, publisher, tab]);
+
+  useEffect(() => {
+    if (tab !== "prompt") return;
+
+    const controller = new AbortController();
+
+    async function loadPrompts() {
+      setPromptLoading(true);
+      setPromptError("");
+
+      try {
+        const params = new URLSearchParams({
+          page: String(promptPage),
+          pageSize: String(PAGE_SIZE),
+        });
+
+        if (promptTier !== "all") {
+          params.set("tier", promptTier);
+        }
+
+        if (promptSearch.trim()) {
+          params.set("q", promptSearch.trim());
+        }
+
+        const response = await fetch(`/api/prompts?${params.toString()}`, {
+          method: "GET",
+          signal: controller.signal,
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          setPromptError("Failed to load prompts. Please try again.");
+          return;
+        }
+
+        const body = (await response.json()) as PromptQueryResponse;
+        setPromptQuery(body);
+      } catch {
+        if (!controller.signal.aborted) {
+          setPromptError("Failed to load prompts. Please try again.");
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setPromptLoading(false);
+        }
+      }
+    }
+
+    void loadPrompts();
+
+    return () => controller.abort();
+  }, [promptPage, promptSearch, promptTier, tab]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount);
@@ -125,6 +197,8 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
     };
   }, [translations, visibleItems]);
 
+  const promptPageCount = Math.max(1, Math.ceil(promptQuery.totalMatches / Math.max(1, promptQuery.pageSize)));
+
   function onTabChange(nextTab: TabKey) {
     setTab(nextTab);
     setPage(1);
@@ -145,13 +219,22 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
     setPage(1);
   }
 
-  const countByType: Record<ItemType | "all", number> = {
+  function onPromptSearchChange(nextValue: string) {
+    setPromptSearch(nextValue);
+    setPromptPage(1);
+  }
+
+  function onPromptTierChange(nextValue: string) {
+    setPromptTier(nextValue);
+    setPromptPage(1);
+  }
+
+  const countByType: Record<TabKey, number> = {
     all: items.length,
     skill: items.filter((item) => item.type === "skill").length,
     mcp: items.filter((item) => item.type === "mcp").length,
     agent: items.filter((item) => item.type === "agent").length,
-    repository: items.filter((item) => item.type === "repository").length,
-    other: items.filter((item) => item.type === "other").length,
+    prompt: promptQuery.totalPrompts,
   };
 
   return (
@@ -203,9 +286,76 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
               ))}
             </select>
           </div>
+
+          {tab === "prompt" ? (
+            <div className="filter-row filter-row-prompts-inline">
+              <input
+                value={promptSearch}
+                onChange={(event) => onPromptSearchChange(event.target.value)}
+                placeholder="Search prompt titles, summaries, text, or repo..."
+              />
+              <select value={promptTier} onChange={(event) => onPromptTierChange(event.target.value)}>
+                <option value="all">All Tiers</option>
+                {promptQuery.tiers.map((entry) => (
+                  <option value={entry} key={entry}>
+                    {entry}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
         </div>
 
-        {visibleItems.length === 0 ? (
+        {tab === "prompt" ? (
+          <>
+            {promptLoading ? <p className="empty">Loading prompts...</p> : null}
+            {!promptLoading && promptError ? <p className="empty">{promptError}</p> : null}
+
+            {!promptLoading && !promptError ? (
+              <div className="card-grid prompt-grid">
+                {promptQuery.items.length === 0 ? (
+                  <p className="empty">No prompts match your filters.</p>
+                ) : null}
+                {promptQuery.items.map((item) => (
+                  <article className="card prompt-card" key={item.id}>
+                    <div className="card-top">
+                      <span className="badge badge-featured">Prompt</span>
+                      <span className="badge badge-type">{item.tier}</span>
+                    </div>
+                    <h3>{item.title}</h3>
+                    <p className="card-desc">{item.summary || fallbackPromptSummary(item)}</p>
+                    <div className="card-foot">
+                      <span className="tag">{item.repo}</span>
+                      <button type="button" className="prompt-view-btn" onClick={() => setActivePrompt(item)}>
+                        View Prompt
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : null}
+
+            <div className="pagination">
+              <button
+                type="button"
+                disabled={promptPage <= 1}
+                onClick={() => setPromptPage((prev) => Math.max(1, prev - 1))}
+              >
+                ← Prev
+              </button>
+              <span>
+                Prompt Page {promptPage} / {promptPageCount} · {promptQuery.items.length.toLocaleString()} shown
+              </span>
+              <button
+                type="button"
+                disabled={promptPage >= promptPageCount}
+                onClick={() => setPromptPage((prev) => Math.min(promptPageCount, prev + 1))}
+              >
+                Next →
+              </button>
+            </div>
+          </>
+        ) : visibleItems.length === 0 ? (
           <p className="empty">No entries match your filters.</p>
         ) : (
           <div className="card-grid">
@@ -232,7 +382,8 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
           </div>
         )}
 
-        <div className="pagination">
+        {tab !== "prompt" ? (
+          <div className="pagination">
           <button
             type="button"
             disabled={safePage <= 1}
@@ -250,7 +401,42 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
           >
             Next →
           </button>
-        </div>
+          </div>
+        ) : null}
+
+        {activePrompt ? (
+          <div className="prompt-modal" role="dialog" aria-modal="true" aria-label={activePrompt.title}>
+            <button
+              type="button"
+              className="prompt-modal-backdrop"
+              aria-label="Close prompt"
+              onClick={() => setActivePrompt(null)}
+            />
+            <div className="prompt-modal-panel">
+              <div className="prompt-modal-head">
+                <div>
+                  <span className="badge badge-featured">Prompt</span>
+                  <span className="badge badge-type">{activePrompt.tier}</span>
+                </div>
+                <button type="button" className="prompt-close" onClick={() => setActivePrompt(null)}>
+                  Close
+                </button>
+              </div>
+
+              <h3>{activePrompt.title}</h3>
+              <p className="card-desc">{activePrompt.summary}</p>
+
+              <div className="prompt-modal-meta">
+                <span>{activePrompt.repo}</span>
+                <span>{activePrompt.sourcePath}</span>
+              </div>
+
+              <div className="prompt-modal-body">
+                <pre>{activePrompt.prompt}</pre>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </section>
   );
