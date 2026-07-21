@@ -16,7 +16,7 @@ const tabLabels: Record<TabKey, string> = {
 };
 
 function sortItems(items: CatalogItem[]): CatalogItem[] {
-  return [...items].sort((a, b) => a.name.localeCompare(b.name));
+  return [...items].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 }
 
 export function Explorer({ dataset }: { dataset: CatalogDataset }) {
@@ -26,8 +26,8 @@ export function Explorer({ dataset }: { dataset: CatalogDataset }) {
   const [page, setPage] = useState(1);
 
   const sectionOptions = useMemo(() => {
-    const names = [...new Set(dataset.items.map((item) => item.section).filter(Boolean))];
-    return names.sort((a, b) => a!.localeCompare(b!));
+    const names = [...new Set(dataset.items.map((item) => item.section).filter(Boolean))] as string[];
+    return names.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   }, [dataset.items]);
 
   const filtered = useMemo(() => {
