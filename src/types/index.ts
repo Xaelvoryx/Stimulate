@@ -18,7 +18,10 @@ export interface CatalogItem {
 export type ExplorerItem = Pick<
   CatalogItem,
   "id" | "name" | "type" | "url" | "description" | "section" | "publisher"
->;
+> & {
+  originalDescription?: string;
+  needsTranslation?: boolean;
+};
 
 export interface SourceMetric {
   label: string;

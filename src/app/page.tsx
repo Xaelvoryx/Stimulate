@@ -71,7 +71,7 @@ function englishNameOrFallback(name: string, type: ItemType): string {
 function englishDescriptionOrFallback(value?: string): string {
   const cleaned = cleanText(value) ?? "";
   if (cleaned && isEnglishLike(cleaned)) return cleaned;
-  return "English summary not available. Open to view the source page.";
+  return "Translating to English...";
 }
 
 function cleanText(value?: string): string | undefined {
@@ -93,13 +93,22 @@ export default function Home() {
         hasUsefulDescription(item.description) &&
         hasValidDestination(item.url),
     )
-    .map((item) => ({
-      ...item,
-      name: englishNameOrFallback(item.name, item.type),
-      description: englishDescriptionOrFallback(item.description),
-      section: isEnglishLike(item.section) ? cleanText(item.section) : "General",
-      publisher: isEnglishLike(item.publisher) ? cleanText(item.publisher) : undefined,
-    }));
+    .map((item) => {
+      const normalizedDescription = cleanText(item.description) ?? "";
+      const needsTranslation = Boolean(normalizedDescription) && !isEnglishLike(normalizedDescription);
+
+      return {
+        ...item,
+        name: englishNameOrFallback(item.name, item.type),
+        description: needsTranslation
+          ? "Translating to English..."
+          : englishDescriptionOrFallback(item.description),
+        originalDescription: needsTranslation ? normalizedDescription : undefined,
+        needsTranslation,
+        section: isEnglishLike(item.section) ? cleanText(item.section) : "General",
+        publisher: isEnglishLike(item.publisher) ? cleanText(item.publisher) : undefined,
+      };
+    });
 
   const filteredTotals = {
     all: filteredItems.length,
@@ -133,6 +142,8 @@ export default function Home() {
     type: item.type,
     url: item.url,
     description: item.description,
+    originalDescription: item.originalDescription,
+    needsTranslation: item.needsTranslation,
     section: item.section,
     publisher: item.publisher,
   }));

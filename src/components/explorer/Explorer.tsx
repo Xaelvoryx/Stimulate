@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ExplorerItem, Publisher, ItemType } from "@/types";
 
 type TabKey = "all" | "skill" | "mcp" | "agent";
@@ -18,12 +18,20 @@ function sortItems(items: ExplorerItem[]): ExplorerItem[] {
   return [...items].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 }
 
+function fallbackSummary(item: ExplorerItem): string {
+  const typeLabel = item.type === "mcp" ? "MCP server" : item.type === "agent" ? "Agent" : "Skill";
+  const section = item.section ? ` in ${item.section}` : "";
+  const publisher = item.publisher ? ` by ${item.publisher}` : "";
+  return `${typeLabel}${publisher}${section}. Open to view full details on the source page.`;
+}
+
 export function Explorer({ items, publishers }: { items: ExplorerItem[]; publishers: Publisher[] }) {
   const [tab, setTab] = useState<TabKey>("all");
   const [search, setSearch] = useState("");
   const [section, setSection] = useState("all");
   const [publisher, setPublisher] = useState("all");
   const [page, setPage] = useState(1);
+  const [translations, setTranslations] = useState<Record<string, string>>({});
 
   const sectionOptions = useMemo(() => {
     const names = [...new Set(items.map((item) => item.section).filter(Boolean))] as string[];
@@ -69,6 +77,53 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
     const start = (safePage - 1) * PAGE_SIZE;
     return filtered.slice(start, start + PAGE_SIZE);
   }, [filtered, safePage]);
+
+  useEffect(() => {
+    const pending = visibleItems.filter(
+      (item) => item.needsTranslation && item.originalDescription && !translations[item.id],
+    );
+
+    if (pending.length === 0) return;
+
+    let cancelled = false;
+
+    async function translateVisible() {
+      const updates: Record<string, string> = {};
+
+      await Promise.all(
+        pending.map(async (item) => {
+          try {
+            const res = await fetch("/api/translate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text: item.originalDescription }),
+            });
+
+            if (!res.ok) {
+              updates[item.id] = fallbackSummary(item);
+              return;
+            }
+
+            const body = (await res.json()) as { translation?: string };
+            const translated = (body.translation ?? "").trim();
+            updates[item.id] = translated || fallbackSummary(item);
+          } catch {
+            updates[item.id] = fallbackSummary(item);
+          }
+        }),
+      );
+
+      if (!cancelled && Object.keys(updates).length > 0) {
+        setTranslations((prev) => ({ ...prev, ...updates }));
+      }
+    }
+
+    void translateVisible();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [translations, visibleItems]);
 
   function onTabChange(nextTab: TabKey) {
     setTab(nextTab);
@@ -161,7 +216,11 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
                   {item.publisher ? <span className="badge badge-pub">{item.publisher}</span> : null}
                 </div>
                 <h3>{item.name}</h3>
-                <p className="card-desc">{item.description || "Open to explore this entry."}</p>
+                <p className="card-desc">
+                  {item.needsTranslation
+                    ? (translations[item.id] ?? "Translating to English...")
+                    : (item.description || "Open to explore this entry.")}
+                </p>
                 <div className="card-foot">
                   <span className="tag">{item.section || "General"}</span>
                   <a href={item.url} target="_blank" rel="noopener noreferrer">
