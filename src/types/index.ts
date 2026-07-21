@@ -14,6 +14,12 @@ export interface CatalogItem {
   discoveredOn?: string;
 }
 
+// Slim projection sent to the client-side Explorer to keep the HTML payload small.
+export type ExplorerItem = Pick<
+  CatalogItem,
+  "id" | "name" | "type" | "url" | "description" | "section" | "publisher"
+>;
+
 export interface SourceMetric {
   label: string;
   value: string;
