@@ -184,47 +184,47 @@ flowchart LR
 	## Architecture
 
 	```mermaid
-	flowchart LR
-		subgraph Sources
-			A[Public GitHub repositories]
-			B[Curated prompt repositories]
-		end
+flowchart LR
+subgraph Sources
+A[Public GitHub repositories]
+B[Curated prompt repositories]
+end
 
-		subgraph Ingestion
-			C[Clone and normalize]
-			D[Deduplicate and filter]
-			E[data/aggregated.json]
-			F[data/prompts.json]
-		end
+subgraph Ingestion
+C[Clone and normalize]
+D[Deduplicate and filter]
+E["data/aggregated.json"]
+F["data/prompts.json"]
+end
 
-		subgraph App
-			G[src/app/page.tsx]
-			H[src/components/explorer/Explorer.tsx]
-			I[src/app/api/prompts/route.ts]
-		end
+subgraph App
+G["src/app/page.tsx"]
+H["src/components/explorer/Explorer.tsx"]
+I["src/app/api/prompts/route.ts"]
+end
 
-		A --> C
-		B --> C
-		C --> D
-		D --> E
-		D --> F
-		E --> G
-		F --> I
-		I --> H
-		G --> H
+A --> C
+B --> C
+C --> D
+D --> E
+D --> F
+E --> G
+F --> I
+I --> H
+G --> H
 	```
 
 	## Prompt Flow
 
 	```mermaid
-	flowchart LR
-		A[Prompt repository] --> B[Local extraction]
-		B --> C[Deduplication]
-		C --> D[Quality filtering]
-		D --> E[data/prompts.json]
-		E --> F[/api/prompts]
-		F --> G[Explorer prompt tab]
-		G --> H[Full prompt modal]
+flowchart LR
+A[Prompt repository] --> B[Local extraction]
+B --> C[Deduplication]
+C --> D[Quality filtering]
+D --> E["data/prompts.json"]
+E --> F["/api/prompts"]
+F --> G[Explorer prompt tab]
+G --> H[Full prompt modal]
 	```
 
 	## Source Families Represented
