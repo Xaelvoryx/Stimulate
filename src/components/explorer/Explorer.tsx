@@ -23,12 +23,18 @@ export function Explorer({ dataset }: { dataset: CatalogDataset }) {
   const [tab, setTab] = useState<TabKey>("all");
   const [search, setSearch] = useState("");
   const [section, setSection] = useState("all");
+  const [publisher, setPublisher] = useState("all");
   const [page, setPage] = useState(1);
 
   const sectionOptions = useMemo(() => {
     const names = [...new Set(dataset.items.map((item) => item.section).filter(Boolean))] as string[];
     return names.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   }, [dataset.items]);
+
+  const publisherOptions = useMemo(
+    () => dataset.publishers.map((entry) => entry.name),
+    [dataset.publishers],
+  );
 
   const filtered = useMemo(() => {
     const lower = search.trim().toLowerCase();
@@ -43,14 +49,19 @@ export function Explorer({ dataset }: { dataset: CatalogDataset }) {
       return item.section === section;
     });
 
-    const bySearch = bySection.filter((item) => {
+    const byPublisher = bySection.filter((item) => {
+      if (publisher === "all") return true;
+      return item.publisher === publisher;
+    });
+
+    const bySearch = byPublisher.filter((item) => {
       if (!lower) return true;
-      const blob = `${item.name} ${item.description ?? ""} ${item.url} ${item.section ?? ""}`.toLowerCase();
+      const blob = `${item.name} ${item.description ?? ""} ${item.url} ${item.section ?? ""} ${item.publisher ?? ""}`.toLowerCase();
       return blob.includes(lower);
     });
 
     return sortItems(bySearch);
-  }, [dataset.items, search, section, tab]);
+  }, [dataset.items, search, section, publisher, tab]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount);
@@ -72,6 +83,11 @@ export function Explorer({ dataset }: { dataset: CatalogDataset }) {
 
   function onSectionChange(nextSection: string) {
     setSection(nextSection);
+    setPage(1);
+  }
+
+  function onPublisherChange(nextPublisher: string) {
+    setPublisher(nextPublisher);
     setPage(1);
   }
 
@@ -124,6 +140,14 @@ export function Explorer({ dataset }: { dataset: CatalogDataset }) {
                 </option>
               ))}
             </select>
+            <select value={publisher} onChange={(event) => onPublisherChange(event.target.value)}>
+              <option value="all">All Publishers</option>
+              {publisherOptions.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -135,6 +159,7 @@ export function Explorer({ dataset }: { dataset: CatalogDataset }) {
               <article className="card" key={item.id}>
                 <div className="card-top">
                   <span className="badge badge-type">{item.type.toUpperCase()}</span>
+                  {item.publisher ? <span className="badge badge-pub">{item.publisher}</span> : null}
                 </div>
                 <h3>{item.name}</h3>
                 <p className="card-desc">{item.description || "Open to explore this entry."}</p>
