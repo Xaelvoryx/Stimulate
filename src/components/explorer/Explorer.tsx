@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { ExplorerItem, Publisher, ItemType } from "@/types";
 
-type TabKey = "all" | "skill" | "mcp" | "agent" | "repository";
+type TabKey = "all" | "skill" | "mcp" | "agent";
 
 const PAGE_SIZE = 80;
 
@@ -12,7 +12,6 @@ const tabLabels: Record<TabKey, string> = {
   skill: "Skills",
   mcp: "MCP",
   agent: "Agents",
-  repository: "Repositories",
 };
 
 function sortItems(items: ExplorerItem[]): ExplorerItem[] {
