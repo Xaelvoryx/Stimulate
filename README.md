@@ -1,53 +1,116 @@
 # Stimulate
 
-Stimulate is a curated AI skills directory that brings together skills, MCP servers, agents, and prompt libraries into a single, fast, searchable site.
+Stimulate is a professional AI builder directory for discovering, comparing, and using:
 
-The goal is simple: keep the most useful builder resources visible inside the site itself, with clean cards, direct access, and a practical workflow for discovery.
+- Skills
+- MCP servers
+- Agents
+- Prompt libraries
 
-## What It Contains
+The product keeps these resources inside a single clean site experience instead of scattering them across separate repositories and pages.
 
-- Skills: curated AI skills and tool recipes
-- MCP servers: Model Context Protocol tools and integrations
-- Agents: autonomous and multi-agent systems
-- Prompts: extracted prompt libraries and system-prompt collections rendered directly inside the site
+## Product Goal
 
-## Key Sections
+The goal of Stimulate is to make AI builder resources easy to browse, compare, and reuse.
 
-- Hero overview with live catalog counts
-- Featured skills, categories, and publisher highlights
-- Skills / MCP / Agents explorer with search and filtering
-- Prompt library with on-site prompt cards and a full prompt viewer
-- Site footer navigation and summary links
+It combines curated catalogs, extracted prompt libraries, and a compact in-site UI so users can move from discovery to action quickly.
 
-## Prompt Library
+## What The Site Contains
 
-The prompt library is built from cloned source repositories, deduplicated locally, and surfaced in the UI without sending users away to GitHub.
+### Skills
 
-Each prompt entry includes:
+Curated AI skills and task-oriented building blocks.
 
-- Title
+### MCP Servers
+
+Model Context Protocol servers, SDKs, and tool integrations.
+
+### Agents
+
+Autonomous agents, multi-agent frameworks, coding agents, research agents, and orchestration tools.
+
+### Prompts
+
+Prompt libraries, system prompts, role prompts, coding prompts, and agent prompt patterns rendered directly inside the site.
+
+## Main Site Sections
+
+1. Hero overview with live catalog counts
+2. Featured skills, categories, and publishers
+3. Explorer with filtering for Skills, MCP, Agents, and Prompts
+4. Prompt modal viewer with full prompt text
+5. How-it-works overview
+6. Footer navigation and product summary
+
+## User Experience
+
+The UI is designed to stay focused and practical:
+
+- Square, consistent controls
+- Fast filtering and search
+- Prompt cards with a full-view modal
+- English-only visible card copy
+- Responsive layout for desktop, tablet, and mobile
+
+## Data Sources
+
+The site uses local generated datasets and does not require users to leave the site experience:
+
+- `data/aggregated.json` for skills, MCP servers, agents, and catalog metadata
+- `data/prompts.json` for extracted prompt-library content
+
+Prompt content is collected from curated public repositories, deduplicated locally, filtered for quality, and served through a local API.
+
+## Prompt Library Flow
+
+```mermaid
+flowchart LR
+	A[Curated Prompt Repositories] --> B[Local Clone and Extraction]
+	B --> C[Deduplication and Quality Filtering]
+	C --> D[data/prompts.json]
+	D --> E[/api/prompts]
+	E --> F[Explorer Prompt Tab]
+	F --> G[Modal Full Prompt View]
+```
+
+## Architecture
+
+```mermaid
+flowchart LR
+	subgraph Data
+		A[data/aggregated.json]
+		B[data/prompts.json]
+	end
+
+	subgraph App
+		C[src/app/page.tsx]
+		D[src/components/explorer/Explorer.tsx]
+		E[src/app/api/prompts/route.ts]
+	end
+
+	A --> C
+	B --> E
+	E --> D
+	C --> D
+```
+
+## Prompt Library Details
+
+The prompt feed shows:
+
+- Prompt title
 - Short English summary
-- Full prompt content
+- Full prompt text in a modal viewer
 - Source repository
 - Source path inside the repository
 - Tier label
 
-## Data Pipeline
+## Site Behavior
 
-The site uses local generated datasets:
-
-- `data/aggregated.json` for the main catalog
-- `data/prompts.json` for extracted prompt entries
-
-Prompt content is ingested from the repositories you provided, normalized, deduplicated, and then served through a local API for browsing.
-
-## Notable Features
-
-- Fast local browsing with search and filters
-- English-only display for card content
-- On-site prompt viewing with a modal overlay
-- Square, consistent UI controls
-- Responsive layout for desktop, tablet, and mobile
+- Skills, MCP servers, and agents are shown through the catalog explorer.
+- Prompts are available in the same explorer experience as a dedicated tab.
+- Prompt cards open a modal overlay with the full prompt text.
+- The prompt feed is filtered to English-like, higher-quality entries.
 
 ## Tech Stack
 
@@ -56,7 +119,7 @@ Prompt content is ingested from the repositories you provided, normalized, dedup
 - TypeScript
 - Tailwind CSS v4 + custom CSS
 
-## Local Development
+## Development
 
 ```bash
 npm install
@@ -79,11 +142,11 @@ npm run build
 ## Repository Layout
 
 - `src/app` - routes, layout, and API endpoints
-- `src/components` - UI sections and dashboard widgets
+- `src/components` - dashboard sections and explorer UI
 - `src/lib/data` - dataset loaders
 - `scripts/ingest` - local extraction and ingestion scripts
-- `data` - generated datasets consumed by the site
+- `data` - generated datasets used by the site
 
 ## Notes
 
-This site is intentionally focused on builder resources. The content is designed to stay inside the site experience, with prompt text rendered directly rather than redirecting users away from the catalog.
+The site is intentionally optimized for browsing and reuse, not outbound navigation. Content is normalized, deduplicated, and surfaced directly inside the product.
