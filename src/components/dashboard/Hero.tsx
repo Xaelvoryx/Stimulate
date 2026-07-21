@@ -25,7 +25,7 @@ export function Hero({ dataset }: { dataset: CatalogDataset }) {
               Discover the Best <span className="grad">AI Agent Skills</span> &amp; MCP Servers
             </h1>
             <p className="lead">
-              A curated directory of skills, MCP servers, agents, and repositories
+              A curated directory of skills, MCP servers, and agents
               for Claude Code, Codex, Cursor, Gemini CLI, and more. Find, compare,
               and open the building blocks that supercharge your workflow.
             </p>
@@ -47,10 +47,6 @@ export function Hero({ dataset }: { dataset: CatalogDataset }) {
               <div className="hero-stat">
                 <b>{totals.agents.toLocaleString()}</b>
                 <span>Agents</span>
-              </div>
-              <div className="hero-stat">
-                <b>{totals.repositories.toLocaleString()}</b>
-                <span>Repositories</span>
               </div>
             </div>
           </div>
