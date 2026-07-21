@@ -12,7 +12,7 @@ The site keeps this material inside one product experience instead of splitting 
 
 ## What This Repository Is
 
-This project is a synthesized, curated directory built from the public repositories you provided. The content is normalized into a unified browsing experience and grouped by capability so users can scan the ecosystem quickly.
+This project is a synthesized, curated directory built from public repositories. The content is normalized into a unified browsing experience and grouped by capability so users can scan the ecosystem quickly.
 
 The site does not copy external README files verbatim. It aggregates the source material into a cleaner index, then presents the key ideas, categories, and linked projects in one place.
 
@@ -89,239 +89,143 @@ Prompt content is collected from curated public repositories, deduplicated local
 
 ```mermaid
 flowchart LR
-	subgraph Sources
-		A[Public GitHub repositories]
-		B[Curated prompt repositories]
-	end
+    subgraph Sources
+        A[Public GitHub repositories]
+        B[Curated prompt repositories]
+    end
 
-	# Stimulate
+    subgraph Ingestion
+        C[Clone and normalize]
+        D[Deduplicate and filter]
+        E["data/aggregated.json"]
+        F["data/prompts.json"]
+    end
 
-	Stimulate is a single catalog for browsing the AI builder ecosystem without leaving the site.
+    subgraph App
+        G["src/app/page.tsx"]
+        H["src/components/explorer/Explorer.tsx"]
+        I["src/app/api/prompts/route.ts"]
+    end
 
-	It brings together:
+    A --> C
+    B --> C
+    C --> D
+    D --> E
+    D --> F
+    E --> G
+    F --> I
+    I --> H
+    G --> H
+```
 
-	- Skills
-	- MCP servers
-	- Agents
-	- Prompts
-	- LLM apps, RAG stacks, local model tools, evaluation systems, guardrails, and workflow infrastructure
+## Prompt Flow
 
-	## What This Repository Is
-
-	This project is a synthesized directory built from the public repositories you provided. It does not copy external README files verbatim. Instead, it normalizes the source material into one browsing experience and groups it by capability so users can scan the ecosystem quickly.
-
-	The goal is to keep the most useful builder resources visible inside the product, not scattered across dozens of separate repository pages.
-
-	## Main Experience
-
-	1. Hero overview with live catalog counts
-	2. Featured skills, categories, and publishers
-	3. Explorer for Skills, MCP, Agents, and Prompts
-	4. Prompt modal viewer with full prompt text
-	5. Footer navigation and product summary
-
-	## Product Scope
-
-	### Skills
-
-	Task-oriented building blocks, agent skills, prompt-engineering guides, and reusable workflow assets.
-
-	### MCP Servers
-
-	Model Context Protocol servers, SDKs, connectors, and tool servers.
-
-	### Agents
-
-	Autonomous agents, coding agents, research agents, browser agents, multi-agent frameworks, and orchestration platforms.
-
-	### Prompts
-
-	Prompt libraries, system prompts, role prompts, prompt-engineering guides, and prompt patterns shown inside the same Explorer experience instead of a separate section.
-
-	### Adjacent Layers
-
-	RAG stacks, LLM apps, local model runtimes, evaluation tools, observability, guardrails, sandboxing, and workflow infrastructure.
-
-	## Why The Catalog Exists
-
-	The ecosystem is fragmented. This project brings together the most useful sources so builders can compare tools without jumping between dozens of repositories.
-
-	It is designed for:
-
-	- AI builders
-	- Prompt engineers
-	- Agent developers
-	- MCP builders
-	- Product teams exploring the AI stack
-
-	## How The Site Is Organized
-
-	### Browse
-
-	Use the Explorer to switch between the core tabs and filter by category.
-
-	### Inspect
-
-	Open an item to review the description and source metadata.
-
-	### Read Prompts In Place
-
-	Prompt content is rendered in the UI and opened in a modal so users can read it without leaving the site.
-
-	### Compare Sources
-
-	Projects from the same family are grouped together so users can compare similar items side by side.
-
-	## Data Model
-
-	The site is driven by generated local datasets:
-
-	- `data/aggregated.json` for the main catalog
-	- `data/prompts.json` for extracted prompt-library content
-
-	Prompt content is collected from curated public repositories, deduplicated locally, filtered for quality, and served through a local API.
-
-	## Architecture
-
-	```mermaid
+```mermaid
 flowchart LR
-subgraph Sources
-A[Public GitHub repositories]
-B[Curated prompt repositories]
-end
+    A[Prompt repository] --> B[Local extraction]
+    B --> C[Deduplication]
+    C --> D[Quality filtering]
+    D --> E["data/prompts.json"]
+    E --> F["/api/prompts"]
+    F --> G[Explorer prompt tab]
+    G --> H[Full prompt modal]
+```
 
-subgraph Ingestion
-C[Clone and normalize]
-D[Deduplicate and filter]
-E["data/aggregated.json"]
-F["data/prompts.json"]
-end
+## Source Families Represented
 
-subgraph App
-G["src/app/page.tsx"]
-H["src/components/explorer/Explorer.tsx"]
-I["src/app/api/prompts/route.ts"]
-end
+### Awesome AI Agents And General Lists
 
-A --> C
-B --> C
-C --> D
-D --> E
-D --> F
-E --> G
-F --> I
-I --> H
-G --> H
-	```
+Curated discovery lists covering agents, CLI coding agents, LLM agents, AI agents, and app catalogs.
 
-	## Prompt Flow
+### MCP And Tooling
 
-	```mermaid
-flowchart LR
-A[Prompt repository] --> B[Local extraction]
-B --> C[Deduplication]
-C --> D[Quality filtering]
-D --> E["data/prompts.json"]
-E --> F["/api/prompts"]
-F --> G[Explorer prompt tab]
-G --> H[Full prompt modal]
-	```
+The official Model Context Protocol organization, SDKs, server collections, and popular MCP server implementations.
 
-	## Source Families Represented
+### Prompt Libraries And Prompt Engineering
 
-	### Awesome AI Agents And General Lists
+Prompt repositories, prompt-engineering guides, system prompt collections, and prompt safety resources.
 
-	Curated discovery lists covering agents, CLI coding agents, LLM agents, AI agents, and app catalogs.
+### LLM Apps, Frameworks, And Agent Builders
 
-	### MCP And Tooling
+Frameworks and app builders such as LangChain, LangGraph, AutoGen, Semantic Kernel, CrewAI, MetaGPT, ChatDev, OpenHands, OpenDevin, Flowise, Dify, and related projects.
 
-	The official Model Context Protocol organization, SDKs, server collections, and popular MCP server implementations.
+### RAG, Search, And Knowledge Systems
 
-	### Prompt Libraries And Prompt Engineering
+RAG pipelines, retrieval frameworks, search assistants, document parsers, memory systems, and knowledge engines such as llama_index, Haystack, ragflow, txtai, mem0, zep, Jina, Weaviate tools, GraphRAG, LightRAG, and similar projects.
 
-	Prompt repositories, prompt-engineering guides, system prompt collections, and prompt safety resources.
+### Local Models And Inference
 
-	### LLM Apps, Frameworks, And Agent Builders
+Local model runtimes, inference servers, open model tooling, and training utilities such as Ollama, llama.cpp, vLLM, TGI, FastChat, Open WebUI, Jan, LocalAI, MLC-LLM, Exo, transformers, PEFT, TRL, and Unsloth.
 
-	Frameworks and app builders such as LangChain, LangGraph, AutoGen, Semantic Kernel, CrewAI, MetaGPT, ChatDev, OpenHands, OpenDevin, Flowise, Dify, and related projects.
+### Browser, Web, And Automation Agents
 
-	### RAG, Search, And Knowledge Systems
+Browser automation, web agents, and site interaction tools such as browser-use, BrowserGym, Playwright, Puppeteer, Stagehand, Firecrawl, Crawl4AI, Skyvern, Selenium, and similar projects.
 
-	RAG pipelines, retrieval frameworks, search assistants, document parsers, memory systems, and knowledge engines such as llama_index, Haystack, ragflow, txtai, mem0, zep, Jina, Weaviate tools, GraphRAG, LightRAG, and similar projects.
+### Voice, Vision, And Multimodal Agents
 
-	### Local Models And Inference
+Voice agents, transcription, TTS, and multimodal tooling such as LiveKit Agents, Pipecat, Whisper, Whisper.cpp, Coqui TTS, OpenVoice, Piper, Smolagents, and vision agents.
 
-	Local model runtimes, inference servers, open model tooling, and training utilities such as Ollama, llama.cpp, vLLM, TGI, FastChat, Open WebUI, Jan, LocalAI, MLC-LLM, Exo, transformers, PEFT, TRL, and Unsloth.
+### Monitoring, Evaluation, Guardrails, And LLMOps
 
-	### Browser, Web, And Automation Agents
+Observability, evals, guardrails, red teaming, and tracing tools such as Langfuse, Phoenix, DeepEval, Ragas, promptfoo, Braintrust, Helicone, Guardrails, NeMo Guardrails, and related projects.
 
-	Browser automation, web agents, and site interaction tools such as browser-use, BrowserGym, Playwright, Puppeteer, Stagehand, Firecrawl, Crawl4AI, Skyvern, Selenium, and similar projects.
+### Platform, Infrastructure, And Tooling
 
-	### Voice, Vision, And Multimodal Agents
+SDKs, orchestration, sandboxing, app frameworks, vector databases, and infra tools such as Composio, Unstructured, E2B, Daytona, Modal examples, n8n, Chainlit, Gradio, Streamlit, FastAPI, Reflex, Vanna, DB-GPT, DuckDB, Chroma, Qdrant, Weaviate, Milvus, pgvector, Redis, Vespa, Marqo, Turbopuffer, LanceDB, and FAISS.
 
-	Voice agents, transcription, TTS, and multimodal tooling such as LiveKit Agents, Pipecat, Whisper, Whisper.cpp, Coqui TTS, OpenVoice, Piper, Smolagents, and vision agents.
+## Site Behavior
 
-	### Monitoring, Evaluation, Guardrails, And LLMOps
+- Skills, MCP servers, and agents are shown through the catalog explorer.
+- Prompts are available in the same explorer experience as a dedicated tab.
+- Prompt cards open a modal overlay with the full prompt text.
+- The prompt feed is filtered to English-like, higher-quality entries.
+- The UI avoids forcing the user out to GitHub for every item.
 
-	Observability, evals, guardrails, red teaming, and tracing tools such as Langfuse, Phoenix, DeepEval, Ragas, promptfoo, Braintrust, Helicone, Guardrails, NeMo Guardrails, and related projects.
+## User Experience Notes
 
-	### Platform, Infrastructure, And Tooling
+The UI is designed to stay focused and practical:
 
-	SDKs, orchestration, sandboxing, app frameworks, vector databases, and infra tools such as Composio, Unstructured, E2B, Daytona, Modal examples, n8n, Chainlit, Gradio, Streamlit, FastAPI, Reflex, Vanna, DB-GPT, DuckDB, Chroma, Qdrant, Weaviate, Milvus, pgvector, Redis, Vespa, Marqo, Turbopuffer, LanceDB, and FAISS.
+- Square, consistent controls
+- Fast filtering and search
+- Prompt cards with a full-view modal
+- English-only visible card copy
+- Responsive layout for desktop, tablet, and mobile
 
-	## Site Behavior
+## Tech Stack
 
-	- Skills, MCP servers, and agents are shown through the catalog explorer.
-	- Prompts are available in the same explorer experience as a dedicated tab.
-	- Prompt cards open a modal overlay with the full prompt text.
-	- The prompt feed is filtered to English-like, higher-quality entries.
-	- The UI avoids forcing the user out to GitHub for every item.
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS v4 + custom CSS
 
-	## User Experience Notes
+## Development
 
-	The UI is designed to stay focused and practical:
+```bash
+npm install
+npm run dev
+```
 
-	- Square, consistent controls
-	- Fast filtering and search
-	- Prompt cards with a full-view modal
-	- English-only visible card copy
-	- Responsive layout for desktop, tablet, and mobile
+## Validation
 
-	## Tech Stack
+```bash
+npm run lint
+npm run build
+```
 
-	- Next.js 16
-	- React 19
-	- TypeScript
-	- Tailwind CSS v4 + custom CSS
+## Ingestion Commands
 
-	## Development
+- `npm run ingest` - existing catalog ingestion flow
+- `npm run ingest:master` - existing master list ingestion flow
+- `npm run ingest:prompts` - prompt extraction from curated repositories
 
-	```bash
-	npm install
-	npm run dev
-	```
+## Repository Layout
 
-	## Validation
+- `src/app` - routes, layout, and API endpoints
+- `src/components` - dashboard sections and explorer UI
+- `src/lib/data` - dataset loaders
+- `scripts/ingest` - local extraction and ingestion scripts
+- `data` - generated datasets used by the site
 
-	```bash
-	npm run lint
-	npm run build
-	```
+## Notes
 
-	## Ingestion Commands
-
-	- `npm run ingest` - existing catalog ingestion flow
-	- `npm run ingest:master` - existing master list ingestion flow
-	- `npm run ingest:prompts` - prompt extraction from curated repositories
-
-	## Repository Layout
-
-	- `src/app` - routes, layout, and API endpoints
-	- `src/components` - dashboard sections and explorer UI
-	- `src/lib/data` - dataset loaders
-	- `scripts/ingest` - local extraction and ingestion scripts
-	- `data` - generated datasets used by the site
-
-	## Notes
-
-	This repository is intentionally focused on browsing, comparison, and reuse. The content is normalized, deduplicated, and surfaced directly inside the product instead of remaining as scattered repository links.
+This repository is intentionally focused on browsing, comparison, and reuse. The content is normalized, deduplicated, and surfaced directly inside the product instead of remaining as scattered repository links.
