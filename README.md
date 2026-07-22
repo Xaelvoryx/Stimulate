@@ -1,8 +1,6 @@
-# A place where you cam like to live with these AI Era
-
 <div align="center">
 
-**A Comprehensive AI Builder Ecosystem Catalog**
+**A place where you can like to live with AI Era**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.10-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-blue?style=for-the-badge&logo=react)](https://react.dev/)
