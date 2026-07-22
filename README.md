@@ -355,23 +355,6 @@ SDKs, orchestration, sandboxing, app frameworks, vector databases, and infra too
 - **Quality Filtering** - The prompt feed is filtered to English-like, higher-quality entries for better user experience
 - **Stay-in-App Experience** - The UI avoids forcing the user out to GitHub for every item, keeping users engaged
 
-## User Experience Notes
-
-The UI is designed to stay focused and practical with attention to detail:
-
-### Design Principles
-- **Square, Consistent Controls** - Uniform UI elements for predictable interactions
-- **Fast Filtering and Search** - Instant response to user queries and filters
-- **Prompt Cards with Full-View Modal** - One-click access to complete prompt content
-- **English-Only Visible Card Copy** - Clean, readable content without language barriers
-- **Responsive Layout** - Optimized for desktop, tablet, and mobile devices
-
-### Performance Optimizations
-- **Slim Client Payload** - Explorer uses slim projections to keep HTML payload small (~5MB full dataset reduced to minimal client data)
-- **Lazy Loading** - Components load efficiently for fast initial render
-- **Smart Caching** - Dataset caching for instant subsequent loads
-- **Optimized Filtering** - Client-side filtering for instant response times
-
 ## Tech Stack
 
 ### Frontend Framework
