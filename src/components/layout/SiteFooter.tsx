@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function SiteFooter() {
   const year = new Date().getUTCFullYear();
 
@@ -16,24 +18,22 @@ export function SiteFooter() {
 
           <div className="footer-col">
             <h4>Catalog</h4>
-            <a href="#explore">Browse All</a>
-            <a href="#explore">Skills</a>
-            <a href="#explore">MCP Servers</a>
-            <a href="#explore">Agents</a>
-            <a href="#prompts">Prompts</a>
+            <Link href="/explore">Browse All</Link>
+            <Link href="/explore?tab=skill">Skills</Link>
+            <Link href="/explore?tab=mcp">MCP Servers</Link>
+            <Link href="/explore?tab=agent">Agents</Link>
           </div>
 
           <div className="footer-col">
             <h4>Discover</h4>
-            <a href="#categories">Categories</a>
-            <a href="#prompts">Prompt Library</a>
-            <a href="#top">Back to Top</a>
+            <Link href="/explore">Categories</Link>
+            <Link href="/publishers">Publishers</Link>
           </div>
 
           <div className="footer-col">
             <h4>About</h4>
-            <a href="#top">Overview</a>
-            <a href="#explore">How It Works</a>
+            <Link href="/">Overview</Link>
+            <Link href="/explore">How It Works</Link>
           </div>
         </div>
 
