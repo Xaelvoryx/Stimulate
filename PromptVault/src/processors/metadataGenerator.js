@@ -1,365 +1,384 @@
-import {
-  calculateQualityScore,
-  calculateDifficulty,
-  extractVariables,
-  detectLanguages,
-  detectModels,
-  detectTools,
-  generateEmbeddingText,
-  categorizePrompt,
-  generateTags,
-  generateId,
-  generateSlug,
-  formatTimestamp
-} from '../utils/helpers.js';
-import { CATEGORIES, ROLE_CATEGORIES } from '../../config/repositories.js';
-
 class MetadataGenerator {
-  constructor(options = {}) {
-    this.categories = options.categories || CATEGORIES;
-    this.roleCategories = options.roleCategories || ROLE_CATEGORIES;
+  constructor(config) {
+    this.config = config;
+    this.categories = config.categories || [];
+    this.keywordMappings = this.buildKeywordMappings();
   }
 
-  // Generate complete metadata for a prompt
-  generateMetadata(prompt) {
-    const metadata = {
-      // Identification
-      id: prompt.id || generateId(),
-      slug: prompt.slug || generateSlug(prompt.title || 'untitled'),
-      
-      // Content
-      title: prompt.title || 'Untitled Prompt',
-      description: prompt.description || '',
-      prompt: prompt.prompt,
-      systemPrompt: prompt.systemPrompt || '',
-      developerPrompt: prompt.developerPrompt || '',
-      userPrompt: prompt.userPrompt || '',
-      
-      // Classification
-      category: prompt.category || this.categorizePrompt(prompt.prompt),
-      subcategory: prompt.subcategory || '',
-      tags: prompt.tags || this.generateTags(prompt.prompt),
-      
-      // Technical metadata
-      models: detectModels(prompt.prompt),
-      tools: detectTools(prompt.prompt),
-      frameworks: prompt.frameworks || [],
-      languages: detectLanguages(prompt.prompt),
-      variables: extractVariables(prompt.prompt),
-      
-      // Scoring
-      difficulty: calculateDifficulty(prompt.prompt),
-      qualityScore: calculateQualityScore(prompt.prompt),
-      popularityScore: this.calculatePopularityScore(prompt),
-      
-      // Search and embeddings
-      embeddingText: generateEmbeddingText(prompt),
-      
-      // Examples
-      exampleInput: prompt.exampleInput || '',
-      exampleOutput: prompt.exampleOutput || '',
-      
-      // Source information
-      author: prompt.author || '',
-      repository: prompt.repository || '',
-      repositoryUrl: prompt.repositoryUrl || '',
-      repositoryStars: prompt.repositoryStars || 0,
-      repositoryForks: prompt.repositoryForks || 0,
-      repositoryLicense: prompt.repositoryLicense || '',
-      filePath: prompt.filePath || '',
-      commitHash: prompt.commitHash || '',
-      sourceUrl: prompt.sourceUrl || '',
-      
-      // Timestamps
-      createdAt: prompt.createdAt || formatTimestamp(new Date()),
-      updatedAt: prompt.updatedAt || formatTimestamp(new Date()),
-      lastVerified: formatTimestamp(new Date()),
-      
-      // Relationships
-      relatedPrompts: prompt.relatedPrompts || [],
-      similarityHash: this.generateSimilarityHash(prompt.prompt),
-      duplicates: prompt.duplicates || [],
-      
-      // Processing flags
-      vectorReady: true,
-      searchReady: true
+  buildKeywordMappings() {
+    const mappings = {};
+    
+    const categoryKeywords = {
+      'Programming': ['code', 'programming', 'developer', 'software', 'algorithm', 'function', 'class', 'variable', 'debug', 'fix', 'implement'],
+      'React': ['react', 'jsx', 'tsx', 'component', 'hook', 'usestate', 'useeffect', 'next.js', 'nextjs'],
+      'Next.js': ['next.js', 'nextjs', 'app router', 'pages router', 'server components'],
+      'Python': ['python', 'django', 'flask', 'fastapi', 'pip', 'pyproject'],
+      'JavaScript': ['javascript', 'js', 'node.js', 'nodejs', 'express', 'npm', 'yarn'],
+      'TypeScript': ['typescript', 'ts', 'interface', 'type', 'generic'],
+      'AI': ['ai', 'artificial intelligence', 'machine learning', 'ml', 'deep learning', 'neural network'],
+      'LLM': ['llm', 'large language model', 'gpt', 'claude', 'gemini', 'language model'],
+      'Prompt Engineering': ['prompt', 'prompt engineering', 'system prompt', 'instruction', 'role'],
+      'RAG': ['rag', 'retrieval', 'augmented', 'generation', 'vector', 'embedding', 'similarity'],
+      'Agents': ['agent', 'autonomous', 'multi-agent', 'orchestration', 'workflow'],
+      'MCP': ['mcp', 'model context protocol', 'tool server', 'connector'],
+      'LangChain': ['langchain', 'chain', 'agent', 'tool', 'memory'],
+      'CrewAI': ['crewai', 'crew', 'agent', 'task', 'role'],
+      'AutoGen': ['autogen', 'multi-agent', 'conversation'],
+      'Marketing': ['marketing', 'seo', 'content', 'copywriting', 'email', 'social media'],
+      'Image Generation': ['image', 'midjourney', 'stable diffusion', 'dalle', 'flux', 'generate image'],
+      'DevOps': ['devops', 'docker', 'kubernetes', 'ci/cd', 'deployment', 'infrastructure'],
+      'Cloud': ['aws', 'azure', 'gcp', 'cloud', 'serverless'],
+      'Database': ['sql', 'mongodb', 'postgresql', 'redis', 'database', 'query'],
+      'Testing': ['test', 'testing', 'unit test', 'integration test', 'jest', 'pytest'],
+      'Documentation': ['documentation', 'docs', 'readme', 'api documentation'],
+      'Business': ['business', 'startup', 'finance', 'strategy', 'analysis'],
+      'Education': ['education', 'teaching', 'learning', 'tutorial', 'explain'],
+      'Legal': ['legal', 'law', 'contract', 'compliance'],
+      'Medical': ['medical', 'health', 'healthcare', 'diagnosis']
     };
-    
-    // Add code blocks if present
-    if (prompt.codeBlocks) {
-      metadata.codeBlocks = prompt.codeBlocks;
+
+    for (const [category, keywords] of Object.entries(categoryKeywords)) {
+      for (const keyword of keywords) {
+        mappings[keyword.toLowerCase()] = category;
+      }
     }
-    
-    // Add examples if present
-    if (prompt.examples) {
-      metadata.examples = prompt.examples;
-    }
-    
-    // Add type if present
-    if (prompt.type) {
-      metadata.type = prompt.type;
-    }
-    
-    return metadata;
+
+    return mappings;
   }
 
-  // Categorize prompt based on content
-  categorizePrompt(prompt) {
-    return categorizePrompt(prompt, this.categories);
+  generateMetadata(prompt) {
+    const text = `${prompt.prompt} ${prompt.description} ${prompt.title}`.toLowerCase();
+    
+    return {
+      category: this.categorizePrompt(text, prompt),
+      subcategory: this.generateSubcategory(text, prompt),
+      tags: this.generateTags(text, prompt),
+      models: this.detectModels(text),
+      tools: this.detectTools(text),
+      frameworks: this.detectFrameworks(text),
+      languages: this.detectLanguages(text),
+      difficulty: this.refineDifficulty(prompt.prompt, prompt.difficulty),
+      qualityScore: this.refineQualityScore(prompt.prompt, prompt.qualityScore),
+      popularityScore: this.calculatePopularityScore(prompt)
+    };
   }
 
-  // Generate tags from prompt content
-  generateTags(prompt) {
-    const tags = generateTags(prompt);
-    
-    // Add category as tag
-    const category = this.categorizePrompt(prompt);
-    if (category && category !== 'General') {
-      tags.push(category.toLowerCase());
+  categorizePrompt(text, prompt) {
+    if (prompt.category && this.categories.includes(prompt.category)) {
+      return prompt.category;
     }
-    
-    // Add difficulty as tag
-    const difficulty = calculateDifficulty(prompt);
-    tags.push(difficulty);
-    
-    // Add detected languages as tags
-    const languages = detectLanguages(prompt);
-    languages.forEach(lang => tags.push(lang));
-    
-    // Add detected models as tags
-    const models = detectModels(prompt);
-    models.forEach(model => tags.push(model));
-    
-    // Add detected tools as tags
-    const tools = detectTools(prompt);
-    tools.forEach(tool => tags.push(tool));
-    
-    return [...new Set(tags)];
+
+    for (const [keyword, category] of Object.entries(this.keywordMappings)) {
+      if (text.includes(keyword)) {
+        return category;
+      }
+    }
+
+    const repoCategory = this.inferFromRepository(prompt.repository);
+    if (repoCategory) {
+      return repoCategory;
+    }
+
+    return 'General';
   }
 
-  // Calculate popularity score based on repository metrics
+  generateSubcategory(text, prompt) {
+    const subcategories = {
+      'Programming': ['Web Development', 'Mobile Development', 'Data Science', 'DevOps', 'System Design'],
+      'AI': ['Machine Learning', 'Deep Learning', 'NLP', 'Computer Vision', 'Reinforcement Learning'],
+      'LLM': ['ChatGPT', 'Claude', 'Gemini', 'Open Source Models', 'Fine-tuning'],
+      'Prompt Engineering': ['Role Prompts', 'Chain of Thought', 'Few-shot', 'Zero-shot', 'System Prompts'],
+      'RAG': ['Vector Search', 'Hybrid Search', 'Knowledge Graph', 'Document Processing'],
+      'Agents': ['Coding Agents', 'Research Agents', 'Browser Agents', 'Multi-agent Systems'],
+      'Marketing': ['SEO', 'Content Writing', 'Email Marketing', 'Social Media'],
+      'Image Generation': ['Midjourney', 'Stable Diffusion', 'DALL-E', 'Flux']
+    };
+
+    const category = this.categorizePrompt(text, prompt);
+    const possibleSubcategories = subcategories[category] || [];
+
+    for (const subcategory of possibleSubcategories) {
+      const keywords = subcategory.toLowerCase().split(' ');
+      if (keywords.some(kw => text.includes(kw))) {
+        return subcategory;
+      }
+    }
+
+    return '';
+  }
+
+  generateTags(text, prompt) {
+    const tags = new Set(prompt.tags || []);
+
+    const tagPatterns = [
+      /\b(act as|role|persona|character)\b/i,
+      /\b(step by step|detailed|thorough|comprehensive)\b/i,
+      /\b(example|for instance|such as|illustration)\b/i,
+      /\b(code|programming|developer|software)\b/i,
+      /\b(write|create|generate|make|build)\b/i,
+      /\b(explain|describe|analyze|review)\b/i,
+      /\b(debug|fix|troubleshoot|solve)\b/i,
+      /\b(design|architecture|structure)\b/i,
+      /\b(test|testing|validation)\b/i,
+      /\b(document|documentation|readme)\b/i,
+      /\b(marketing|seo|content|copywriting)\b/i,
+      /\b(image|picture|visual|graphic)\b/i,
+      /\b(data|dataset|database)\b/i,
+      /\b(api|rest|graphql)\b/i,
+      /\b(web|frontend|backend|fullstack)\b/i
+    ];
+
+    for (const pattern of tagPatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        tags.add(match[1].toLowerCase());
+      }
+    }
+
+    const category = this.categorizePrompt(text, prompt);
+    tags.add(category.toLowerCase());
+
+    return Array.from(tags);
+  }
+
+  detectModels(text) {
+    const models = [];
+    const modelPatterns = [
+      /gpt[-\s]?4/i,
+      /gpt[-\s]?3\.5/i,
+      /claude[-\s]?3/i,
+      /claude[-\s]?2/i,
+      /gemini[-\s]?pro/i,
+      /gemini[-\s]?1\.5/i,
+      /llama[-\s]?2/i,
+      /llama[-\s]?3/i,
+      /mistral/i,
+      /qwen/i,
+      /deepseek/i
+    ];
+
+    for (const pattern of modelPatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        models.push(match[0]);
+      }
+    }
+
+    return [...new Set(models)];
+  }
+
+  detectTools(text) {
+    const tools = [];
+    const toolPatterns = [
+      /cursor/i,
+      /cline/i,
+      /aider/i,
+      /copilot/i,
+      /windsurf/i,
+      /github/i,
+      /gitlab/i,
+      /docker/i,
+      /kubernetes/i,
+      /aws/i,
+      /azure/i,
+      /gcp/i
+    ];
+
+    for (const pattern of toolPatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        tools.push(match[0]);
+      }
+    }
+
+    return [...new Set(tools)];
+  }
+
+  detectFrameworks(text) {
+    const frameworks = [];
+    const frameworkPatterns = [
+      /react/i,
+      /next\.?js/i,
+      /vue/i,
+      /angular/i,
+      /node\.?js/i,
+      /express/i,
+      /django/i,
+      /flask/i,
+      /fastapi/i,
+      /spring/i,
+      /laravel/i,
+      /langchain/i,
+      /langgraph/i,
+      /crewai/i,
+      /autogen/i,
+      /llamaindex/i,
+      /semantic[-\s]?kernel/i
+    ];
+
+    for (const pattern of frameworkPatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        frameworks.push(match[0]);
+      }
+    }
+
+    return [...new Set(frameworks)];
+  }
+
+  detectLanguages(text) {
+    const languages = [];
+    const languagePatterns = [
+      /javascript|js\b/i,
+      /typescript|ts\b/i,
+      /python\b/i,
+      /java\b/i,
+      /c\+\+/i,
+      /c#\b/i,
+      /go\b/i,
+      /rust\b/i,
+      /php\b/i,
+      /ruby\b/i,
+      /swift\b/i,
+      /kotlin\b/i,
+      /sql\b/i,
+      /html\b/i,
+      /css\b/i
+    ];
+
+    for (const pattern of languagePatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        languages.push(match[0].toLowerCase());
+      }
+    }
+
+    return [...new Set(languages)];
+  }
+
+  refineDifficulty(prompt, currentDifficulty) {
+    const length = prompt.length;
+    const complexity = prompt.split(/[.!?]/).length;
+    const hasStructure = /\n|\t|•|-/.test(prompt);
+    const hasVariables = /\{|\}|\$|</.test(prompt);
+    const hasExamples = /\b(example|for instance|such as)\b/i.test(prompt);
+
+    let score = 0;
+    if (length > 100) score += 1;
+    if (length > 300) score += 1;
+    if (complexity > 5) score += 1;
+    if (complexity > 10) score += 1;
+    if (hasStructure) score += 1;
+    if (hasVariables) score += 1;
+    if (hasExamples) score += 1;
+
+    if (score <= 2) return 'beginner';
+    if (score <= 4) return 'intermediate';
+    if (score <= 5) return 'advanced';
+    return 'expert';
+  }
+
+  refineQualityScore(prompt, currentScore) {
+    let score = currentScore || 50;
+
+    if (prompt.length > 50) score += 5;
+    if (prompt.length > 200) score += 5;
+    if (prompt.length > 500) score += 5;
+    
+    if (/\b(act as|you are|role)\b/i.test(prompt)) score += 10;
+    if (/\b(context|background|information)\b/i.test(prompt)) score += 10;
+    if (/\b(task|objective|goal)\b/i.test(prompt)) score += 10;
+    if (/\b(step by step|detailed|thorough)\b/i.test(prompt)) score += 10;
+    if (/\b(example|for instance)\b/i.test(prompt)) score += 10;
+    if (/\b(format|output|structure)\b/i.test(prompt)) score += 5;
+    if (/\{|\}|\$|</.test(prompt)) score += 5;
+    if (/\n|\t/.test(prompt)) score += 5;
+
+    return Math.min(100, Math.max(0, score));
+  }
+
   calculatePopularityScore(prompt) {
     let score = 0;
     
-    // Repository stars contribute to popularity
-    if (prompt.repositoryStars) {
-      score += Math.min(prompt.repositoryStars / 100, 10); // Max 10 points from stars
-    }
+    score += Math.min(prompt.repositoryStars / 100, 50);
+    score += Math.min(prompt.repositoryForks / 50, 30);
     
-    // Repository forks contribute
-    if (prompt.repositoryForks) {
-      score += Math.min(prompt.repositoryForks / 50, 5); // Max 5 points from forks
-    }
+    if (prompt.qualityScore > 80) score += 10;
+    if (prompt.tags.length > 3) score += 5;
     
-    // Quality score influences popularity
-    if (prompt.qualityScore) {
-      score += (prompt.qualityScore / 100) * 5; // Max 5 points from quality
-    }
-    
-    // Length of prompt (longer prompts might be more popular)
-    if (prompt.prompt) {
-      const lengthScore = Math.min(prompt.prompt.length / 500, 5);
-      score += lengthScore;
-    }
-    
-    return Math.min(Math.round(score * 10) / 10, 20); // Max 20 points, 1 decimal
+    return Math.min(100, score);
   }
 
-  // Generate similarity hash
-  generateSimilarityHash(text) {
-    const crypto = require('crypto');
-    const normalized = text
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .replace(/[^\w\s]/g, '')
-      .trim();
-    
-    return crypto.createHash('md5').update(normalized).digest('hex');
-  }
+  inferFromRepository(repository) {
+    if (!repository) return null;
 
-  // Generate metadata for batch of prompts
-  generateBatchMetadata(prompts, onProgress) {
-    const results = [];
-    
-    for (let i = 0; i < prompts.length; i++) {
-      const metadata = this.generateMetadata(prompts[i]);
-      results.push(metadata);
-      
-      if (onProgress && i % 100 === 0) {
-        onProgress(i + 1, prompts.length);
-      }
-    }
-    
-    return results;
-  }
-
-  // Enhance existing metadata with additional fields
-  enhanceMetadata(metadata) {
-    // Recalculate quality score if not present
-    if (!metadata.qualityScore) {
-      metadata.qualityScore = calculateQualityScore(metadata.prompt);
-    }
-    
-    // Recalculate difficulty if not present
-    if (!metadata.difficulty) {
-      metadata.difficulty = calculateDifficulty(metadata.prompt);
-    }
-    
-    // Generate embedding text if not present
-    if (!metadata.embeddingText) {
-      metadata.embeddingText = generateEmbeddingText(metadata);
-    }
-    
-    // Extract variables if not present
-    if (!metadata.variables || metadata.variables.length === 0) {
-      metadata.variables = extractVariables(metadata.prompt);
-    }
-    
-    // Detect languages if not present
-    if (!metadata.languages || metadata.languages.length === 0) {
-      metadata.languages = detectLanguages(metadata.prompt);
-    }
-    
-    // Detect models if not present
-    if (!metadata.models || metadata.models.length === 0) {
-      metadata.models = detectModels(metadata.prompt);
-    }
-    
-    // Detect tools if not present
-    if (!metadata.tools || metadata.tools.length === 0) {
-      metadata.tools = detectTools(metadata.prompt);
-    }
-    
-    // Generate tags if not present
-    if (!metadata.tags || metadata.tags.length === 0) {
-      metadata.tags = this.generateTags(metadata.prompt);
-    }
-    
-    // Categorize if not present
-    if (!metadata.category) {
-      metadata.category = this.categorizePrompt(metadata.prompt);
-    }
-    
-    // Update timestamps
-    metadata.updatedAt = formatTimestamp(new Date());
-    metadata.lastVerified = formatTimestamp(new Date());
-    
-    return metadata;
-  }
-
-  // Validate metadata completeness
-  validateMetadata(metadata) {
-    const required = ['id', 'prompt', 'title'];
-    const recommended = ['category', 'tags', 'qualityScore'];
-    const errors = [];
-    const warnings = [];
-    
-    required.forEach(field => {
-      if (!metadata[field]) {
-        errors.push(`Missing required field: ${field}`);
-      }
-    });
-    
-    recommended.forEach(field => {
-      if (!metadata[field]) {
-        warnings.push(`Missing recommended field: ${field}`);
-      }
-    });
-    
-    // Check prompt length
-    if (metadata.prompt && metadata.prompt.length < 10) {
-      errors.push('Prompt too short (minimum 10 characters)');
-    }
-    
-    // Check quality score range
-    if (metadata.qualityScore && (metadata.qualityScore < 0 || metadata.qualityScore > 100)) {
-      warnings.push('Quality score should be between 0 and 100');
-    }
-    
-    return {
-      valid: errors.length === 0,
-      errors,
-      warnings
+    const repoMappings = {
+      'langchain-ai/langchain': 'LangChain',
+      'langchain-ai/langgraph': 'LangChain',
+      'crewAIInc/crewAI': 'CrewAI',
+      'microsoft/autogen': 'AutoGen',
+      'run-llama/llama_index': 'RAG',
+      'openai/openai-cookbook': 'LLM',
+      'anthropics/claude-code': 'Claude',
+      'cline/cline': 'Claude',
+      'Aider-AI/aider': 'Claude',
+      'f/awesome-chatgpt-prompts': 'Prompt Engineering',
+      'dair-ai/Prompt-Engineering-Guide': 'Prompt Engineering'
     };
+
+    return repoMappings[repository] || null;
   }
 
-  // Get metadata statistics
-  getStats(prompts) {
-    const stats = {
-      total: prompts.length,
-      categories: {},
-      difficulties: {},
-      avgQualityScore: 0,
-      avgPopularityScore: 0,
-      totalTags: 0,
-      uniqueTags: new Set(),
-      totalLanguages: 0,
-      uniqueLanguages: new Set(),
-      totalModels: 0,
-      uniqueModels: new Set(),
-      totalTools: 0,
-      uniqueTools: new Set()
-    };
-    
-    prompts.forEach(prompt => {
-      // Categories
-      if (prompt.category) {
-        stats.categories[prompt.category] = (stats.categories[prompt.category] || 0) + 1;
-      }
+  generateRelatedPrompts(prompt, allPrompts, limit = 5) {
+    const related = [];
+    const promptText = `${prompt.prompt} ${prompt.description} ${prompt.title}`.toLowerCase();
+    const promptCategory = prompt.category;
+
+    for (const otherPrompt of allPrompts) {
+      if (otherPrompt.id === prompt.id) continue;
+
+      const otherText = `${otherPrompt.prompt} ${otherPrompt.description} ${otherPrompt.title}`.toLowerCase();
       
-      // Difficulties
-      if (prompt.difficulty) {
-        stats.difficulties[prompt.difficulty] = (stats.difficulties[prompt.difficulty] || 0) + 1;
-      }
+      let similarity = 0;
       
-      // Quality scores
-      if (prompt.qualityScore) {
-        stats.avgQualityScore += prompt.qualityScore;
-      }
+      if (otherPrompt.category === promptCategory) similarity += 30;
       
-      // Popularity scores
-      if (prompt.popularityScore) {
-        stats.avgPopularityScore += prompt.popularityScore;
-      }
+      const commonTags = prompt.tags.filter(tag => otherPrompt.tags.includes(tag));
+      similarity += commonTags.length * 10;
       
-      // Tags
-      if (prompt.tags) {
-        stats.totalTags += prompt.tags.length;
-        prompt.tags.forEach(tag => stats.uniqueTags.add(tag));
-      }
+      if (otherPrompt.repository === prompt.repository) similarity += 15;
       
-      // Languages
-      if (prompt.languages) {
-        stats.totalLanguages += prompt.languages.length;
-        prompt.languages.forEach(lang => stats.uniqueLanguages.add(lang));
+      const commonWords = promptText.split(' ').filter(word => 
+        word.length > 3 && otherText.includes(word)
+      );
+      similarity += Math.min(commonWords.length * 2, 20);
+
+      if (similarity > 30) {
+        related.push({
+          id: otherPrompt.id,
+          title: otherPrompt.title,
+          similarity: similarity
+        });
       }
-      
-      // Models
-      if (prompt.models) {
-        stats.totalModels += prompt.models.length;
-        prompt.models.forEach(model => stats.uniqueModels.add(model));
-      }
-      
-      // Tools
-      if (prompt.tools) {
-        stats.totalTools += prompt.tools.length;
-        prompt.tools.forEach(tool => stats.uniqueTools.add(tool));
-      }
-    });
-    
-    // Calculate averages
-    if (stats.total > 0) {
-      stats.avgQualityScore = stats.avgQualityScore / stats.total;
-      stats.avgPopularityScore = stats.avgPopularityScore / stats.total;
     }
+
+    return related
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, limit)
+      .map(r => r.id);
+  }
+
+  processBatch(prompts) {
+    console.log(`Generating metadata for ${prompts.length} prompts...`);
     
-    // Convert sets to arrays
-    stats.uniqueTags = Array.from(stats.uniqueTags);
-    stats.uniqueLanguages = Array.from(stats.uniqueLanguages);
-    stats.uniqueModels = Array.from(stats.uniqueModels);
-    stats.uniqueTools = Array.from(stats.uniqueTools);
-    
-    return stats;
+    return prompts.map(prompt => {
+      const metadata = this.generateMetadata(prompt);
+      
+      return {
+        ...prompt,
+        ...metadata
+      };
+    });
   }
 }
 
