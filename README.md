@@ -615,10 +615,6 @@ Contributions are welcome! Here are ways you can help:
 - Keep components small and focused
 - Use descriptive variable and function names
 
-## License
-
-This project is provided as-is for educational and discovery purposes. Please refer to individual source repositories for their specific licenses.
-
 ## Acknowledgments
 
 ### Data Sources
@@ -637,9 +633,6 @@ This project aggregates content from numerous open-source repositories and curat
 - Open an issue on GitHub for bug reports or feature requests
 - Check existing issues for solutions
 - Review the documentation for common questions
-
-### Community
-Join the community to connect with other AI builders and share your experiences with the catalog.
 
 ## Future Roadmap
 
@@ -662,12 +655,3 @@ Join the community to connect with other AI builders and share your experiences 
 - **Dependency Graph** - Visualize relationships between projects
 - **Performance Metrics** - Include performance benchmarks and comparisons
 
----
-
-<div align="center">
-
-**Built with love for the AI Builder Community**
-
-**Stimulate — Your Gateway to the AI Ecosystem**
-
-</div>
