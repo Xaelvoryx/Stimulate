@@ -157,7 +157,6 @@ export default function Home() {
         <FeaturedSkills dataset={pageData} />
         <CategoryGrid dataset={pageData} />
         <PublisherStrip dataset={pageData} />
-        <Explorer items={explorerItems} publishers={pageData.publishers} />
         <HowItWorks />
       </main>
 
