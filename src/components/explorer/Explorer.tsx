@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { ExplorerItem, Publisher, PromptItem, PromptQueryResponse } from "@/types";
 
@@ -31,10 +33,17 @@ function fallbackPromptSummary(item: PromptItem): string {
 }
 
 export function Explorer({ items, publishers }: { items: ExplorerItem[]; publishers: Publisher[] }) {
-  const [tab, setTab] = useState<TabKey>("all");
+  const searchParams = useSearchParams();
+
+  // Initialize state based on query parameters if present
+  const initialTab = (searchParams.get("tab") as TabKey) || "all";
+  const initialSection = searchParams.get("section") || "all";
+  const initialPublisher = searchParams.get("publisher") || "all";
+
+  const [tab, setTab] = useState<TabKey>(initialTab);
   const [search, setSearch] = useState("");
-  const [section, setSection] = useState("all");
-  const [publisher, setPublisher] = useState("all");
+  const [section, setSection] = useState(initialSection);
+  const [publisher, setPublisher] = useState(initialPublisher);
   const [promptTier, setPromptTier] = useState("all");
   const [promptSearch, setPromptSearch] = useState("");
   const [promptPage, setPromptPage] = useState(1);
@@ -52,6 +61,15 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
   const [activePrompt, setActivePrompt] = useState<PromptItem | null>(null);
   const [page, setPage] = useState(1);
   const [translations, setTranslations] = useState<Record<string, string>>({});
+
+  // Sync tab state when query params change
+  useEffect(() => {
+    const tabParam = searchParams.get("tab") as TabKey;
+    if (tabParam && tabParam !== tab) {
+      setTab(tabParam);
+    }
+  }, [searchParams, tab]);
+
 
   const sectionOptions = useMemo(() => {
     const names = [...new Set(items.map((item) => item.section).filter(Boolean))] as string[];
@@ -91,12 +109,13 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
   }, [items, search, section, publisher, tab]);
 
   useEffect(() => {
-    if (tab !== "prompt") return;
-
     const controller = new AbortController();
 
     async function loadPrompts() {
-      setPromptLoading(true);
+      // Only set loading spinners if the active tab is actually the prompt tab
+      if (tab === "prompt") {
+        setPromptLoading(true);
+      }
       setPromptError("");
 
       try {
@@ -120,18 +139,20 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
         });
 
         if (!response.ok) {
-          setPromptError("Failed to load prompts. Please try again.");
+          if (tab === "prompt") {
+            setPromptError("Failed to load prompts. Please try again.");
+          }
           return;
         }
 
         const body = (await response.json()) as PromptQueryResponse;
         setPromptQuery(body);
       } catch {
-        if (!controller.signal.aborted) {
+        if (!controller.signal.aborted && tab === "prompt") {
           setPromptError("Failed to load prompts. Please try again.");
         }
       } finally {
-        if (!controller.signal.aborted) {
+        if (!controller.signal.aborted && tab === "prompt") {
           setPromptLoading(false);
         }
       }
@@ -373,9 +394,9 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
                 </p>
                 <div className="card-foot">
                   <span className="tag">{item.section || "General"}</span>
-                  <a href={item.url} target="_blank" rel="noopener noreferrer">
-                    Open →
-                  </a>
+                  <Link href={`/item/${item.id}`}>
+                    Details →
+                  </Link>
                 </div>
               </article>
             ))}
