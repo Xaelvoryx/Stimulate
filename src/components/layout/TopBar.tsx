@@ -23,6 +23,7 @@ export function TopBar({ dataset }: { dataset: CatalogDataset }) {
         <nav className="topbar-nav" style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
           <Link href="/" style={{ color: "#fff", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Home</Link>
           <Link href="/explore" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem" }}>Catalog</Link>
+          <Link href="/prompt-vault" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem" }}>Prompt Vault</Link>
           <Link href="/publishers" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem" }}>Publishers</Link>
         </nav>
 
