@@ -485,29 +485,30 @@ class PromptExtractor {
     if (!text || typeof text !== 'string') return false;
     const trimmed = text.trim();
     
-    if (trimmed.length < 10) return false;
-    if (trimmed.length > 50000) return false;
+    if (trimmed.length < 15) return false;
+    if (trimmed.length > 100000) return false;
 
     const promptIndicators = [
-      /^(act as|you are|you're|you are an|i want you to|please|can you|write|create|generate|make|help me|explain|describe|analyze|review|debug|fix|implement|design|build|develop|code|program)/i,
-      /(prompt|instruction|task|role|context|system|template|example|guideline|rule|requirement)/i,
-      /\b(the following|your task|your role|your goal|your objective|your mission)\b/i,
-      /\b(step by step|in detail|thoroughly|comprehensive|detailed|carefully|precisely)\b/i,
+      /^(act as|you are|you're|you are an|i want you to|please|can you|write|create|generate|make|help me|explain|describe|analyze|review|debug|fix|implement|design|build|develop|code|program|translate|summarize)/i,
+      /(prompt|instruction|task|role|context|system|template|example|guideline|rule|requirement|command|directive)/i,
+      /\b(the following|your task|your role|your goal|your objective|your mission|your purpose)\b/i,
+      /\b(step by step|in detail|thoroughly|comprehensive|detailed|carefully|precisely|exactly)\b/i,
       /\{|\}|\[|\]/,
       /\$\{.*\}/,
       /<.*>.*<\/.*>/,
-      /\b(should|must|need to|have to)\b/i,
-      /\b(ensure|make sure|verify|confirm)\b/i,
+      /\b(should|must|need to|have to|required)\b/i,
+      /\b(ensure|make sure|verify|confirm|check)\b/i,
       /\n/,
       /\./,
-      /,/
+      /,/,
+      /\b(if|when|then|else|for|while|do)\b/i
     ];
 
     const hasIndicator = promptIndicators.some(regex => regex.test(trimmed));
     
     if (hasIndicator) return true;
 
-    if (trimmed.length > 30 && trimmed.split(' ').length > 5) {
+    if (trimmed.length > 50 && trimmed.split(' ').length > 8) {
       return true;
     }
 
