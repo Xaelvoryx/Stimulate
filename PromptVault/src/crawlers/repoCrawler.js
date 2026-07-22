@@ -46,35 +46,23 @@ class RepoCrawler {
       return { path: repoPath, url, repoInfo, status: 'cached' };
     }
 
+    return await this.cloneWithGit(url, repoInfo, repoPath, null);
+  }
+
+  async cloneWithGit(url, repoInfo, repoPath, repoData) {
     try {
-      console.log(`Fetching: ${repoInfo.fullName}`);
+      console.log(`Cloning with git: ${repoInfo.fullName}`);
       
       if (await fs.pathExists(repoPath)) {
         await fs.remove(repoPath);
       }
 
-      await fs.ensureDir(repoPath);
-      
-      const repoData = await this.getRepoMetadata(url, repoInfo);
-      
-      await this.sleep(1000);
-      const files = await this.fetchRepositoryFiles(repoInfo);
-      
-      if (files.length === 0) {
-        console.log(`API returned no files for ${repoInfo.fullName}`);
-        this.failedRepos.add(url);
-        return {
-          path: null,
-          url,
-          repoInfo,
-          status: 'failed',
-          error: 'No files found via API'
-        };
-      }
-      
-      for (const file of files) {
-        await this.downloadFile(file, repoPath, repoInfo);
-        await this.sleep(100);
+      await execAsync(`git clone --depth 1 ${url} "${repoPath}"`, {
+        timeout: 180000
+      });
+
+      if (!repoData) {
+        repoData = await this.getRepoMetadata(url, repoInfo);
       }
 
       this.processedRepos.add(url);
@@ -87,7 +75,7 @@ class RepoCrawler {
         status: 'success'
       };
     } catch (error) {
-      console.error(`Failed to fetch ${repoInfo.fullName}:`, error.message);
+      console.error(`Git clone failed for ${repoInfo.fullName}:`, error.message);
       this.failedRepos.add(url);
       
       if (await fs.pathExists(repoPath)) {
