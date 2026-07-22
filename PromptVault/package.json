@@ -1,0 +1,45 @@
+{
+  "name": "promptvault-extraction-engine",
+  "version": "1.0.0",
+  "description": "Autonomous Prompt Extraction, Classification, Deduplication, and Knowledge Structuring System",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "extract": "node src/extractor.js",
+    "process": "node src/processor.js",
+    "deduplicate": "node src/deduplicator.js",
+    "generate": "node src/generator.js",
+    "full": "node src/full-pipeline.js"
+  },
+  "keywords": [
+    "prompt",
+    "extraction",
+    "ai",
+    "llm",
+    "chatgpt",
+    "claude",
+    "gemini"
+  ],
+  "author": "PromptVault AI",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "js-yaml": "^4.1.0",
+    "csv-writer": "^1.6.0",
+    "parquet-writer": "^0.2.0",
+    "fast-csv": "^4.3.6",
+    "node-fetch": "^3.3.2",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10",
+    "markdown-it": "^14.0.0",
+    "natural": "^6.10.0",
+    "uuid": "^9.0.1",
+    "date-fns": "^3.0.0",
+    "simple-git": "^3.21.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0"
+  }
+}
