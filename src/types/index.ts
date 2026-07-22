@@ -67,6 +67,65 @@ export interface CatalogDataset {
   items: CatalogItem[];
 }
 
+export interface PromptVaultItem {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  prompt: string;
+  systemPrompt: string;
+  developerPrompt: string;
+  userPrompt: string;
+  category: string;
+  subcategory: string;
+  tags: string[];
+  models: string[];
+  tools: string[];
+  frameworks: string[];
+  languages: string[];
+  variables: string[];
+  difficulty: string;
+  qualityScore: number;
+  popularityScore: number;
+  embeddingText: string;
+  exampleInput: string;
+  exampleOutput: string;
+  author: string;
+  repository: string;
+  repositoryUrl: string;
+  repositoryStars: number;
+  repositoryForks: number;
+  repositoryLicense: string;
+  filePath: string;
+  commitHash: string;
+  sourceUrl: string;
+  createdAt: string;
+  updatedAt: string;
+  lastVerified: string;
+  relatedPrompts: string[];
+  similarityHash: string;
+  duplicates: string[];
+  vectorReady: boolean;
+  searchReady: boolean;
+}
+
+export interface PromptVaultDataset {
+  items: PromptVaultItem[];
+  categories: Record<string, number>;
+  tags: Record<string, number>;
+  difficulties: Record<string, number>;
+  qualityDistribution: {
+    excellent: number;
+    good: number;
+    average: number;
+    poor: number;
+  };
+  averageQuality: number;
+  averagePopularity: number;
+  totalStars: number;
+  totalForks: number;
+}
+
 export interface PromptItem {
   id: string;
   title: string;
