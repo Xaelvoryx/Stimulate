@@ -25,10 +25,10 @@ export function TopBar({ dataset }: { dataset?: CatalogDataset } = {}) {
         </Link>
         
         <nav className="topbar-nav" style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
-          <Link href="/" style={{ color: "#fff", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Home</Link>
-          <Link href="/explore" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem" }}>Catalog</Link>
-          <Link href="/prompt-vault" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem" }}>Prompt Vault</Link>
-          <Link href="/publishers" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem" }}>Publishers</Link>
+          <Link href="/" style={{ color: "#fff", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500, padding: "0.5rem 0.75rem", border: "1px solid transparent" }}>Home</Link>
+          <Link href="/explore" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", padding: "0.5rem 0.75rem", border: "1px solid transparent" }}>Catalog</Link>
+          <Link href="/prompt-vault" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", padding: "0.5rem 0.75rem", border: "1px solid transparent" }}>Prompt Vault</Link>
+          <Link href="/publishers" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", padding: "0.5rem 0.75rem", border: "1px solid transparent" }}>Publishers</Link>
         </nav>
 
         <div className="topbar-meta">
