@@ -3,6 +3,7 @@ import path from 'path';
 import yaml from 'js-yaml';
 import * as cheerio from 'cheerio';
 import { glob } from 'glob';
+import crypto from 'crypto';
 
 class PromptExtractor {
   constructor(config) {
@@ -55,7 +56,6 @@ class PromptExtractor {
   async extractFromFile(filePath, repoPath, repoInfo, repoData) {
     const content = await fs.readFile(filePath, 'utf-8');
     const ext = path.extname(filePath).toLowerCase();
-    const relativePath = path.relative(repoPath, filePath);
 
     let prompts = [];
 
@@ -155,7 +155,7 @@ class PromptExtractor {
         }));
       }
 
-    } catch (error) {
+    } catch {
       if (this.isPromptLike(content)) {
         prompts.push(this.createPromptObject({
           prompt: content,
@@ -179,7 +179,7 @@ class PromptExtractor {
       const data = JSON.parse(content);
       const extracted = this.extractPromptsFromObject(data, filePath, repoPath, repoInfo, repoData);
       prompts.push(...extracted);
-    } catch (error) {
+    } catch {
       if (this.isPromptLike(content)) {
         prompts.push(this.createPromptObject({
           prompt: content,
@@ -203,7 +203,7 @@ class PromptExtractor {
       const data = yaml.load(content);
       const extracted = this.extractPromptsFromObject(data, filePath, repoPath, repoInfo, repoData);
       prompts.push(...extracted);
-    } catch (error) {
+    } catch {
       if (this.isPromptLike(content)) {
         prompts.push(this.createPromptObject({
           prompt: content,
@@ -549,7 +549,6 @@ class PromptExtractor {
   }
 
   generateId(prompt, repo, filePath) {
-    const crypto = require('crypto');
     const content = `${prompt}${repo}${filePath}`;
     return crypto.createHash('sha256').update(content).digest('hex').substring(0, 16);
   }
@@ -609,7 +608,6 @@ class PromptExtractor {
   }
 
   generateSimilarityHash(prompt) {
-    const crypto = require('crypto');
     const normalized = prompt.toLowerCase().replace(/\s+/g, ' ').trim();
     return crypto.createHash('md5').update(normalized).digest('hex');
   }

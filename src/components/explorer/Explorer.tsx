@@ -66,7 +66,8 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
   useEffect(() => {
     const tabParam = searchParams.get("tab") as TabKey;
     if (tabParam && tabParam !== tab) {
-      setTab(tabParam);
+      // Use setTimeout to avoid synchronous setState in effect
+      setTimeout(() => setTab(tabParam), 0);
     }
   }, [searchParams, tab]);
 
