@@ -1,3 +1,5 @@
+"use client";
+
 import { TopBar } from "@/components/layout/TopBar";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { loadPromptVaultData } from "@/lib/data/loadPromptVault";

@@ -9,6 +9,8 @@ export function loadPromptVaultData(): PromptVaultDataset {
     const fileContent = fs.readFileSync(dataPath, 'utf-8');
     const items: PromptVaultItem[] = JSON.parse(fileContent);
     
+    console.log(`Loaded ${items.length} prompts from PromptVault`);
+    
     const categories: Record<string, number> = {};
     const tags: Record<string, number> = {};
     const difficulties: Record<string, number> = {};
@@ -50,6 +52,8 @@ export function loadPromptVaultData(): PromptVaultDataset {
     
     const averageQuality = items.length > 0 ? totalQuality / items.length : 0;
     const averagePopularity = items.length > 0 ? totalPopularity / items.length : 0;
+    
+    console.log(`Categories: ${Object.keys(categories).length}, Tags: ${Object.keys(tags).length}, Difficulties: ${Object.keys(difficulties).length}`);
     
     return {
       items,
