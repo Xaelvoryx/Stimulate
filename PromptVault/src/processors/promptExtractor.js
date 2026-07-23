@@ -1,6 +1,5 @@
 import fs from 'fs-extra';
 import path from 'path';
-import matter from 'gray-matter';
 import yaml from 'js-yaml';
 import * as cheerio from 'cheerio';
 import { glob } from 'glob';
@@ -9,7 +8,7 @@ class PromptExtractor {
   constructor(config) {
     this.config = config;
     this.extractedPrompts = [];
-    this.fileExtensions = config.fileExtensions || ['.md', '.txt', '.json', '.yaml', '.yml', '.xml', '.csv', '.html', '.mdx'];
+    this.fileExtensions = config.fileExtensions || ['.md', '.txt', '.json', '.yaml', '.yml', '.xml', '.csv', '.html'];
     this.ignorePatterns = config.ignorePatterns || ['node_modules', '.git', 'dist', 'build'];
   }
 
@@ -49,7 +48,8 @@ class PromptExtractor {
       files.push(...matched);
     }
 
-    return [...new Set(files)];
+    // Filter out files with _meta in their name
+    return files.filter(file => !file.includes('_meta'));
   }
 
   async extractFromFile(filePath, repoPath, repoInfo, repoData) {
@@ -94,25 +94,12 @@ class PromptExtractor {
     const prompts = [];
     
     try {
-      const { data, content: markdownContent } = matter(content);
+      // Use raw content without gray-matter to avoid require errors
+      const markdownContent = content;
       
       const codeBlocks = this.extractCodeBlocks(markdownContent);
       const promptPatterns = this.extractPromptPatterns(markdownContent);
       
-      if (data.prompt || data.system_prompt || data.systemPrompt) {
-        prompts.push(this.createPromptObject({
-          prompt: data.prompt || data.system_prompt || data.systemPrompt,
-          title: data.title || path.basename(filePath, path.extname(filePath)),
-          description: data.description || '',
-          category: data.category || '',
-          tags: data.tags || [],
-          filePath,
-          repoPath,
-          repoInfo,
-          repoData
-        }));
-      }
-
       for (const block of codeBlocks) {
         if (this.isPromptLike(block.code)) {
           prompts.push(this.createPromptObject({
