@@ -8,6 +8,83 @@ const execAsync = promisify(exec);
 
 const config = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json'), 'utf-8'));
 
+const CATEGORIES = {
+  'coding': ['code', 'programming', 'developer', 'software', 'debug', 'api', 'function', 'algorithm'],
+  'writing': ['write', 'article', 'blog', 'content', 'story', 'essay', 'copy', 'creative'],
+  'business': ['business', 'marketing', 'sales', 'strategy', 'management', 'startup', 'entrepreneur'],
+  'education': ['teach', 'learn', 'explain', 'tutorial', 'education', 'student', 'study'],
+  'data': ['data', 'analysis', 'database', 'sql', 'analytics', 'statistics', 'visualization'],
+  'design': ['design', 'ui', 'ux', 'graphic', 'visual', 'creative', 'art'],
+  'productivity': ['productivity', 'organize', 'plan', 'schedule', 'task', 'workflow', 'efficiency'],
+  'research': ['research', 'analyze', 'investigate', 'study', 'find', 'discover'],
+  'communication': ['email', 'message', 'communication', 'chat', 'conversation', 'respond'],
+  'marketing': ['marketing', 'seo', 'social media', 'advertising', 'promotion', 'brand'],
+  'finance': ['finance', 'money', 'investment', 'trading', 'budget', 'financial'],
+  'health': ['health', 'fitness', 'medical', 'wellness', 'exercise', 'nutrition'],
+  'general': ['general', 'help', 'assist', 'support', 'advice']
+};
+
+const DIFFICULTY_KEYWORDS = {
+  'beginner': ['simple', 'basic', 'easy', 'beginner', 'intro', 'start', 'quick'],
+  'intermediate': ['intermediate', 'moderate', 'standard', 'regular', 'normal'],
+  'advanced': ['advanced', 'complex', 'expert', 'professional', 'detailed', 'comprehensive']
+};
+
+function categorizePrompt(text) {
+  const lowerText = text.toLowerCase();
+  let bestCategory = 'general';
+  let maxMatches = 0;
+  
+  for (const [category, keywords] of Object.entries(CATEGORIES)) {
+    const matches = keywords.filter(keyword => lowerText.includes(keyword)).length;
+    if (matches > maxMatches) {
+      maxMatches = matches;
+      bestCategory = category;
+    }
+  }
+  
+  return bestCategory;
+}
+
+function determineDifficulty(text) {
+  const lowerText = text.toLowerCase();
+  let bestDifficulty = 'intermediate';
+  let maxMatches = 0;
+  
+  for (const [difficulty, keywords] of Object.entries(DIFFICULTY_KEYWORDS)) {
+    const matches = keywords.filter(keyword => lowerText.includes(keyword)).length;
+    if (matches > maxMatches) {
+      maxMatches = matches;
+      bestDifficulty = difficulty;
+    }
+  }
+  
+  return bestDifficulty;
+}
+
+function generateTags(text, category) {
+  const tags = new Set();
+  const lowerText = text.toLowerCase();
+  
+  // Add category as tag
+  tags.add(category);
+  
+  // Common AI/tech tags
+  const techTags = ['ai', 'llm', 'gpt', 'claude', 'chatgpt', 'automation', 'assistant', 'bot'];
+  techTags.forEach(tag => {
+    if (lowerText.includes(tag)) tags.add(tag);
+  });
+  
+  // Extract some meaningful words as tags
+  const words = lowerText.match(/\b[a-z]{4,}\b/g) || [];
+  const commonWords = new Set(['this', 'that', 'with', 'from', 'have', 'will', 'your', 'their', 'what', 'when', 'where', 'which', 'each', 'every', 'about', 'into', 'over', 'after']);
+  words.filter(word => !commonWords.has(word) && word.length >= 4).slice(0, 5).forEach(word => {
+    tags.add(word);
+  });
+  
+  return Array.from(tags).slice(0, 8);
+}
+
 async function extractNoCommit() {
   const reposDir = path.join(process.cwd(), 'repos');
   await fs.ensureDir(reposDir);
@@ -106,6 +183,10 @@ async function extractFromRepo(repoPath, repoName) {
               const titleMatch = trimmed.match(/^([^\n]+)/);
               const title = titleMatch ? titleMatch[1].substring(0, 50).trim() : 'Prompt';
               
+              const category = categorizePrompt(trimmed);
+              const difficulty = determineDifficulty(trimmed);
+              const tags = generateTags(trimmed, category);
+              
               prompts.push({
                 id: `${repoName}-${path.basename(mdFile)}-${prompts.length}`,
                 slug: `${repoName}-${path.basename(mdFile)}-${prompts.length}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
@@ -115,15 +196,15 @@ async function extractFromRepo(repoPath, repoName) {
                 systemPrompt: '',
                 developerPrompt: '',
                 userPrompt: trimmed,
-                category: 'Prompt Engineering',
+                category: category.charAt(0).toUpperCase() + category.slice(1),
                 subcategory: 'General',
-                tags: ['prompt', 'ai', 'llm'],
+                tags: tags,
                 models: ['GPT-4', 'Claude'],
                 tools: [],
                 frameworks: [],
                 languages: [],
                 variables: [],
-                difficulty: 'intermediate',
+                difficulty: difficulty.charAt(0).toUpperCase() + difficulty.slice(1),
                 qualityScore: 70,
                 popularityScore: 50,
                 embeddingText: trimmed,
