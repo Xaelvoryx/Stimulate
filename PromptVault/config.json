@@ -223,5 +223,5 @@
   "ignorePatterns": ["node_modules", ".git", "dist", "build", "package-lock.json", "yarn.lock", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg", "*.ico", "*.pdf", "*.zip", "*.tar", "*.gz"],
   "maxRetries": 3,
   "timeout": 30000,
-  "concurrentRepos": 3
+  "concurrentRepos": 1
 }
