@@ -8,7 +8,7 @@ export default function PromptVaultPage() {
   
   return (
     <div className="page-wrap" id="top">
-      <TopBar dataset={data} />
+      <TopBar />
       <PromptVaultClient data={data} />
       <SiteFooter />
     </div>
