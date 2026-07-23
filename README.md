@@ -1,8 +1,6 @@
-# Stimulate
-
 <div align="center">
 
-**A Comprehensive AI Builder Ecosystem Catalog**
+**A place where you can like to live with AI Era**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.10-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-blue?style=for-the-badge&logo=react)](https://react.dev/)
@@ -357,23 +355,6 @@ SDKs, orchestration, sandboxing, app frameworks, vector databases, and infra too
 - **Quality Filtering** - The prompt feed is filtered to English-like, higher-quality entries for better user experience
 - **Stay-in-App Experience** - The UI avoids forcing the user out to GitHub for every item, keeping users engaged
 
-## User Experience Notes
-
-The UI is designed to stay focused and practical with attention to detail:
-
-### Design Principles
-- **Square, Consistent Controls** - Uniform UI elements for predictable interactions
-- **Fast Filtering and Search** - Instant response to user queries and filters
-- **Prompt Cards with Full-View Modal** - One-click access to complete prompt content
-- **English-Only Visible Card Copy** - Clean, readable content without language barriers
-- **Responsive Layout** - Optimized for desktop, tablet, and mobile devices
-
-### Performance Optimizations
-- **Slim Client Payload** - Explorer uses slim projections to keep HTML payload small (~5MB full dataset reduced to minimal client data)
-- **Lazy Loading** - Components load efficiently for fast initial render
-- **Smart Caching** - Dataset caching for instant subsequent loads
-- **Optimized Filtering** - Client-side filtering for instant response times
-
 ## Tech Stack
 
 ### Frontend Framework
@@ -634,10 +615,6 @@ Contributions are welcome! Here are ways you can help:
 - Keep components small and focused
 - Use descriptive variable and function names
 
-## License
-
-This project is provided as-is for educational and discovery purposes. Please refer to individual source repositories for their specific licenses.
-
 ## Acknowledgments
 
 ### Data Sources
@@ -656,9 +633,6 @@ This project aggregates content from numerous open-source repositories and curat
 - Open an issue on GitHub for bug reports or feature requests
 - Check existing issues for solutions
 - Review the documentation for common questions
-
-### Community
-Join the community to connect with other AI builders and share your experiences with the catalog.
 
 ## Future Roadmap
 
@@ -681,12 +655,3 @@ Join the community to connect with other AI builders and share your experiences 
 - **Dependency Graph** - Visualize relationships between projects
 - **Performance Metrics** - Include performance benchmarks and comparisons
 
----
-
-<div align="center">
-
-**Built with love for the AI Builder Community**
-
-**Stimulate — Your Gateway to the AI Ecosystem**
-
-</div>
