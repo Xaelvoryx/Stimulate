@@ -1,0 +1,17 @@
+{
+  "total": 0,
+  "categories": {},
+  "tags": {},
+  "repositories": {},
+  "difficulties": {},
+  "qualityDistribution": {
+    "excellent": 0,
+    "good": 0,
+    "average": 0,
+    "poor": 0
+  },
+  "averageQuality": "NaN",
+  "averagePopularity": "NaN",
+  "totalStars": 0,
+  "totalForks": 0
+}
