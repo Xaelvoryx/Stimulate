@@ -6,11 +6,15 @@ const MONTHS = [
   "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
 ];
 
-export function TopBar({ dataset }: { dataset: CatalogDataset }) {
-  const d = new Date(dataset.generatedAt);
-  const stamp = Number.isNaN(d.getTime())
-    ? ""
-    : `${MONTHS[d.getUTCMonth()]} ${String(d.getUTCDate()).padStart(2, "0")} ${d.getUTCFullYear()}`;
+export function TopBar({ dataset }: { dataset?: CatalogDataset } = {}) {
+  const stamp = dataset?.generatedAt 
+    ? (() => {
+        const d = new Date(dataset.generatedAt);
+        return Number.isNaN(d.getTime())
+          ? ""
+          : `${MONTHS[d.getUTCMonth()]} ${String(d.getUTCDate()).padStart(2, "0")} ${d.getUTCFullYear()}`;
+      })()
+    : "";
 
   return (
     <div className="topbar">
@@ -29,9 +33,13 @@ export function TopBar({ dataset }: { dataset: CatalogDataset }) {
 
         <div className="topbar-meta">
           <span>INDEX LIVE{stamp ? ` · ${stamp}` : ""}</span>
-          <span><b>{dataset.totals.skills.toLocaleString()}</b> SKILLS</span>
-          <span><b>{dataset.totals.mcps.toLocaleString()}</b> MCP SERVERS</span>
-          <span><b>{dataset.totals.agents.toLocaleString()}</b> AGENTS</span>
+          {dataset?.totals && (
+            <>
+              <span><b>{dataset.totals.skills.toLocaleString()}</b> SKILLS</span>
+              <span><b>{dataset.totals.mcps.toLocaleString()}</b> MCP SERVERS</span>
+              <span><b>{dataset.totals.agents.toLocaleString()}</b> AGENTS</span>
+            </>
+          )}
         </div>
         
         <Link className="topbar-search" href="/explore">
