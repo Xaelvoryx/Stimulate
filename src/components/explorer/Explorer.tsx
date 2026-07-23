@@ -290,8 +290,9 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
               value={search}
               onChange={(event) => onSearchChange(event.target.value)}
               placeholder="Search name, description, or URL…"
+              className="border border-gray-300 bg-white text-gray-900 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
-            <select value={section} onChange={(event) => onSectionChange(event.target.value)}>
+            <select value={section} onChange={(event) => onSectionChange(event.target.value)} className="border border-gray-300 bg-white text-gray-900 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
               <option value="all">All Categories</option>
               {sectionOptions.map((name) => (
                 <option key={name} value={name}>
@@ -299,7 +300,7 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
                 </option>
               ))}
             </select>
-            <select value={publisher} onChange={(event) => onPublisherChange(event.target.value)}>
+            <select value={publisher} onChange={(event) => onPublisherChange(event.target.value)} className="border border-gray-300 bg-white text-gray-900 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
               <option value="all">All Publishers</option>
               {publisherOptions.map((name) => (
                 <option key={name} value={name}>
@@ -315,8 +316,9 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
                 value={promptSearch}
                 onChange={(event) => onPromptSearchChange(event.target.value)}
                 placeholder="Search prompt titles, summaries, text, or repo..."
+                className="border border-gray-300 bg-white text-gray-900 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
-              <select value={promptTier} onChange={(event) => onPromptTierChange(event.target.value)}>
+              <select value={promptTier} onChange={(event) => onPromptTierChange(event.target.value)} className="border border-gray-300 bg-white text-gray-900 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                 <option value="all">All Tiers</option>
                 {promptQuery.tiers.map((entry) => (
                   <option value={entry} key={entry}>
