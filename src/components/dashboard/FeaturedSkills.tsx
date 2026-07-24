@@ -64,7 +64,6 @@ export function FeaturedSkills({ dataset }: { dataset: CatalogDataset }) {
                 <span className="badge badge-type">{TYPE_LABEL[item.type] ?? "Entry"}</span>
               </div>
               <h3>{item.name}</h3>
-              <p className="card-desc">{item.description || "Open to explore this entry."}</p>
               <div className="card-foot">
                 <span className="tag">{item.section || "General"}</span>
                 <a href={item.url} target="_blank" rel="noopener noreferrer">
