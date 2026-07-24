@@ -32,7 +32,6 @@ export function TopBar({ dataset }: { dataset?: CatalogDataset } = {}) {
         </nav>
 
         <div className="topbar-meta">
-          <span>INDEX LIVE{stamp ? ` · ${stamp}` : ""}</span>
           {dataset?.totals && (
             <>
               <span><b>{dataset.totals.skills.toLocaleString()}</b> SKILLS</span>
