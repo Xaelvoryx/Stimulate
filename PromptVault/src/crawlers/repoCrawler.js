@@ -143,7 +143,7 @@ class RepoCrawler {
     return allowedExts.includes(ext);
   }
 
-  async downloadFile(file, repoPath, repoInfo) {
+  async downloadFile(file, repoPath) {
     try {
       const response = await axios.get(file.download_url, {
         responseType: 'arraybuffer'
