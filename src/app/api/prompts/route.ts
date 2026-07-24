@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { loadPromptDataset } from "@/lib/data/loadData";
-import type { PromptItem, PromptQueryResponse } from "@/types";
+import { loadPromptVaultDataset } from "@/lib/data/loadData";
+import type { PromptItem, PromptQueryResponse, PromptVaultItem } from "@/types";
 
 function toPositiveInt(value: string | null, fallbackValue: number): number {
   const n = Number.parseInt(value ?? "", 10);
@@ -10,6 +10,20 @@ function toPositiveInt(value: string | null, fallbackValue: number): number {
 
 function sortPrompts(items: PromptItem[]): PromptItem[] {
   return [...items].sort((a, b) => (a.title < b.title ? -1 : a.title > b.title ? 1 : 0));
+}
+
+function convertVaultItemToPromptItem(item: PromptVaultItem): PromptItem {
+  return {
+    id: item.id,
+    title: item.title,
+    summary: item.description,
+    prompt: item.prompt,
+    repo: item.repository,
+    repoUrl: item.repositoryUrl,
+    sourcePath: item.filePath,
+    tier: item.difficulty,
+    tags: item.tags,
+  };
 }
 
 const NON_LATIN_CHARS = /[^\p{Script=Latin}\p{N}\p{P}\p{Zs}]/u;
@@ -45,7 +59,7 @@ function englishPrompt(item: PromptItem): PromptItem | null {
 }
 
 export async function GET(request: Request) {
-  const dataset = loadPromptDataset();
+  const dataset = loadPromptVaultDataset();
   const url = new URL(request.url);
 
   const q = (url.searchParams.get("q") ?? "").trim().toLowerCase();
@@ -53,13 +67,14 @@ export async function GET(request: Request) {
   const page = toPositiveInt(url.searchParams.get("page"), 1);
   const pageSize = Math.min(40, toPositiveInt(url.searchParams.get("pageSize"), 12));
 
-  const englishItems = dataset.items.map(englishPrompt).filter((item): item is PromptItem => item !== null);
+  // Convert PromptVault items to PromptItem format
+  const promptItems = dataset.items.map(convertVaultItemToPromptItem);
 
-  const tiers = [...new Set(englishItems.map((item) => item.tier).filter(Boolean))].sort((a, b) =>
+  const tiers = [...new Set(promptItems.map((item) => item.tier).filter(Boolean))].sort((a, b) =>
     a.localeCompare(b),
   );
 
-  const byTier = englishItems.filter((item) => {
+  const byTier = promptItems.filter((item) => {
     if (tier === "all") return true;
     return item.tier === tier;
   });
@@ -78,8 +93,8 @@ export async function GET(request: Request) {
   const pageItems = sorted.slice(start, start + pageSize);
 
   const payload: PromptQueryResponse = {
-    generatedAt: dataset.generatedAt,
-    totalPrompts: englishItems.length,
+    generatedAt: new Date().toISOString(),
+    totalPrompts: promptItems.length,
     totalMatches,
     page: safePage,
     pageSize,
