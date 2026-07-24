@@ -347,7 +347,6 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
                       <span className="badge badge-type">{item.tier}</span>
                     </div>
                     <h3>{item.title}</h3>
-                    <p className="card-desc">{item.summary || fallbackPromptSummary(item)}</p>
                     <div className="card-foot">
                       <span className="tag">{item.repo}</span>
                       <button type="button" className="prompt-view-btn" onClick={() => setActivePrompt(item)}>
@@ -390,11 +389,6 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
                   {item.publisher ? <span className="badge badge-pub">{item.publisher}</span> : null}
                 </div>
                 <h3>{item.name}</h3>
-                <p className="card-desc">
-                  {item.needsTranslation
-                    ? (translations[item.id] ?? "Translating to English...")
-                    : (item.description || "Open to explore this entry.")}
-                </p>
                 <div className="card-foot">
                   <span className="tag">{item.section || "General"}</span>
                   <Link href={`/item/${item.id}`}>
