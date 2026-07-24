@@ -135,11 +135,6 @@ export function PromptVaultClient({ data }: { data: PromptVaultDataset }) {
                 </span>
               )}
             </div>
-            
-            <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
-              <span>Quality: {prompt.qualityScore}/100</span>
-              <span>Stars: {prompt.repositoryStars}</span>
-            </div>
           </div>
         ))}
       </div>
