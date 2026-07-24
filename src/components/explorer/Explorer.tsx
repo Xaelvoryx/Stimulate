@@ -62,16 +62,6 @@ export function Explorer({ items, publishers }: { items: ExplorerItem[]; publish
   const [page, setPage] = useState(1);
   const [translations, setTranslations] = useState<Record<string, string>>({});
 
-  // Sync tab state when query params change
-  useEffect(() => {
-    const tabParam = searchParams.get("tab") as TabKey;
-    if (tabParam && tabParam !== tab) {
-      // Use setTimeout to avoid synchronous setState in effect
-      setTimeout(() => setTab(tabParam), 0);
-    }
-  }, [searchParams, tab]);
-
-
   const sectionOptions = useMemo(() => {
     const names = [...new Set(items.map((item) => item.section).filter(Boolean))] as string[];
     return names.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
