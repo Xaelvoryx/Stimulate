@@ -125,7 +125,7 @@ async function extractFromRepo(repoPath, repoName) {
                 exampleOutput: '',
                 author: repoName,
                 repository: repoName,
-                repositoryUrl: `https://github.com/${repoName.replace('_', '/')}`,
+                repositoryUrl: `https://github.com/${repoName.replace(/_/g, '/')}`,
                 repositoryStars: 0,
                 repositoryForks: 0,
                 repositoryLicense: 'Unknown',
