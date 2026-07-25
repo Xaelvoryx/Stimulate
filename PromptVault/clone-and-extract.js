@@ -69,6 +69,7 @@ async function cloneAndExtract() {
 
 async function extractFromRepo(repoPath, repoName) {
   const prompts = [];
+  let sectionCounter = 0;
   
   try {
     const mdFiles = await glob('**/*.md', {
@@ -90,9 +91,10 @@ async function extractFromRepo(repoPath, repoName) {
               const titleMatch = trimmed.match(/^([^\n]+)/);
               const title = titleMatch ? titleMatch[1].substring(0, 50).trim() : 'Prompt';
               
+              const uniqueId = `${repoName}-${path.basename(mdFile)}-${sectionCounter}`;
               prompts.push({
-                id: `${repoName}-${path.basename(mdFile)}-${prompts.length}`,
-                slug: `${repoName}-${path.basename(mdFile)}-${prompts.length}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+                id: uniqueId,
+                slug: uniqueId.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
                 title: title,
                 description: trimmed.substring(0, 200),
                 prompt: trimmed,
@@ -131,6 +133,7 @@ async function extractFromRepo(repoPath, repoName) {
                 vectorReady: true,
                 searchReady: true
               });
+              sectionCounter++;
             }
           }
         }
