@@ -26,24 +26,6 @@ function convertVaultItemToPromptItem(item: PromptVaultItem): PromptItem {
   };
 }
 
-const NON_LATIN_CHARS = /[^\p{Script=Latin}\p{N}\p{P}\p{Zs}]/u;
-
-function hasUsefulTitle(title: string): boolean {
-  const value = title.trim();
-  if (!value) return false;
-  if (/^__[^_]+__$/.test(value)) return false;
-  if (/^[\p{P}\p{S}\s_]+$/u.test(value)) return false;
-  if (value.length < 4) return false;
-  return true;
-}
-
-function isEnglishLike(value?: string): boolean {
-  if (!value) return true;
-  const normalized = value.replace(/https?:\/\/\S+/g, " ").replace(/\s+/g, " ").trim();
-  if (!normalized) return true;
-  return !NON_LATIN_CHARS.test(normalized);
-}
-
 export async function GET(request: Request) {
   const dataset = loadPromptVaultDataset();
   const url = new URL(request.url);
