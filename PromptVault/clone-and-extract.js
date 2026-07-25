@@ -25,6 +25,7 @@ try {
 
 const PROMPT_LENGTH_MIN = config.promptLengthMin || 100;
 const PROMPT_LENGTH_MAX = config.promptLengthMax || 10000;
+const GIT_CLONE_TIMEOUT = config.timeout || 180000;
 
 async function cloneAndExtract() {
   const reposDir = path.join(process.cwd(), 'repos');
@@ -53,7 +54,7 @@ async function cloneAndExtract() {
         
         // Clone repository
         await execAsync(`git clone --depth 1 ${repoUrl} "${repoPath}"`, {
-          timeout: 180000
+          timeout: GIT_CLONE_TIMEOUT
         });
         
         console.log(`Cloned ${repoName} successfully`);
