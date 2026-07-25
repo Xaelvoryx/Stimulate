@@ -331,8 +331,13 @@ class PromptExtractor {
     return prompts;
   }
 
-  extractPromptsFromObject(obj, filePath, repoPath, repoInfo, repoData, prefix = '') {
+  extractPromptsFromObject(obj, filePath, repoPath, repoInfo, repoData, prefix = '', depth = 0) {
     const prompts = [];
+    const MAX_DEPTH = 10;
+
+    if (depth > MAX_DEPTH) {
+      return prompts;
+    }
 
     if (typeof obj === 'string' && this.isPromptLike(obj)) {
       prompts.push(this.createPromptObject({
@@ -352,7 +357,8 @@ class PromptExtractor {
           repoPath, 
           repoInfo, 
           repoData, 
-          `${prefix}[${index}]`
+          `${prefix}[${index}]`,
+          depth + 1
         );
         prompts.push(...extracted);
       });
@@ -377,7 +383,8 @@ class PromptExtractor {
             repoPath, 
             repoInfo, 
             repoData, 
-            prefix ? `${prefix}.${key}` : key
+            prefix ? `${prefix}.${key}` : key,
+            depth + 1
           );
           prompts.push(...extracted);
         }
