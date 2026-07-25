@@ -104,6 +104,9 @@ async function extractNoCommit() {
   const reposDir = path.join(process.cwd(), 'repos');
   await fs.ensureDir(reposDir);
   
+  const outputDir = path.join(process.cwd(), 'output', 'json');
+  await fs.ensureDir(outputDir);
+  
   let totalPrompts = [];
   
   for (const [tierName, repos] of Object.entries(config.tiers)) {

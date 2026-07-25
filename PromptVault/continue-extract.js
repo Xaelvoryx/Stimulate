@@ -12,6 +12,9 @@ async function continueExtraction() {
   const reposDir = path.join(process.cwd(), 'repos');
   await fs.ensureDir(reposDir);
   
+  const outputDir = path.join(process.cwd(), 'output', 'json');
+  await fs.ensureDir(outputDir);
+  
   // Load existing prompts
   let existingPrompts = [];
   const promptsPath = path.join(process.cwd(), 'output', 'json', 'prompts.json');
