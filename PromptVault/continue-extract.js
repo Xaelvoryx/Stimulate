@@ -45,6 +45,9 @@ async function continueExtraction() {
   let totalPrompts = [...existingPrompts];
   let processedCount = 0;
   
+  // Create a set of existing prompt IDs for duplicate detection
+  const existingIds = new Set(existingPrompts.map(p => p.id));
+  
   for (const [tierName, repos] of Object.entries(config.tiers)) {
     console.log(`\n=== Processing ${tierName} ===`);
     
@@ -73,7 +76,14 @@ async function continueExtraction() {
         const prompts = await extractFromRepo(repoPath, repoName);
         console.log(`Extracted ${prompts.length} prompts from ${repoName}`);
         
-        totalPrompts.push(...prompts);
+        // Filter out duplicates
+        const newPrompts = prompts.filter(p => !existingIds.has(p.id));
+        console.log(`Filtered out ${prompts.length - newPrompts.length} duplicates, adding ${newPrompts.length} new prompts`);
+        
+        // Add new IDs to existing set
+        newPrompts.forEach(p => existingIds.add(p.id));
+        
+        totalPrompts.push(...newPrompts);
         
         // Save incrementally
         await fs.writeJson(promptsPath, totalPrompts, { spaces: 2 });
