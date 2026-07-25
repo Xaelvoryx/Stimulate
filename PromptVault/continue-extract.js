@@ -6,7 +6,25 @@ import { glob } from 'glob';
 
 const execAsync = promisify(exec);
 
-const config = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json'), 'utf-8'));
+let config;
+try {
+  const configPath = path.join(process.cwd(), 'config.json');
+  if (!fs.existsSync(configPath)) {
+    throw new Error(`Config file not found: ${configPath}`);
+  }
+  const configContent = fs.readFileSync(configPath, 'utf-8');
+  config = JSON.parse(configContent);
+  
+  if (!config.tiers || Object.keys(config.tiers).length === 0) {
+    throw new Error('Config file must contain a "tiers" object with repository URLs');
+  }
+} catch (error) {
+  console.error('Failed to load config.json:', error.message);
+  process.exit(1);
+}
+
+const PROMPT_LENGTH_MIN = config.promptLengthMin || 100;
+const PROMPT_LENGTH_MAX = config.promptLengthMax || 10000;
 
 async function continueExtraction() {
   const reposDir = path.join(process.cwd(), 'repos');
@@ -96,7 +114,7 @@ async function extractFromRepo(repoPath, repoName) {
         
         for (const section of sections) {
           const trimmed = section.trim();
-          if (trimmed.length > 100 && trimmed.length < 10000) {
+          if (trimmed.length > PROMPT_LENGTH_MIN && trimmed.length < PROMPT_LENGTH_MAX) {
             const hasPromptIndicators = /act as|you are|you're|i want you to|please|can you|write|create|generate|make|help me|explain|describe|analyze/i.test(trimmed);
             if (hasPromptIndicators) {
               const titleMatch = trimmed.match(/^([^\n]+)/);

@@ -23,6 +23,9 @@ try {
   process.exit(1);
 }
 
+const PROMPT_LENGTH_MIN = config.promptLengthMin || 100;
+const PROMPT_LENGTH_MAX = config.promptLengthMax || 10000;
+
 const CATEGORIES = {
   'coding': ['code', 'programming', 'developer', 'software', 'debug', 'api', 'function', 'algorithm'],
   'writing': ['write', 'article', 'blog', 'content', 'story', 'essay', 'copy', 'creative'],
@@ -196,7 +199,7 @@ async function extractFromRepo(repoPath, repoName) {
         
         for (const section of sections) {
           const trimmed = section.trim();
-          if (trimmed.length > 100 && trimmed.length < 10000) {
+          if (trimmed.length > PROMPT_LENGTH_MIN && trimmed.length < PROMPT_LENGTH_MAX) {
             const hasPromptIndicators = /act as|you are|you're|i want you to|please|can you|write|create|generate|make|help me|explain|describe|analyze/i.test(trimmed);
             if (hasPromptIndicators) {
               const titleMatch = trimmed.match(/^([^\n]+)/);
