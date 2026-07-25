@@ -475,9 +475,9 @@ class PromptExtractor {
     if (trimmed.length < 15) return false;
     if (trimmed.length > 100000) return false;
 
-    const promptIndicators = [
+    const strongPromptIndicators = [
       /^(act as|you are|you're|you are an|i want you to|please|can you|write|create|generate|make|help me|explain|describe|analyze|review|debug|fix|implement|design|build|develop|code|program|translate|summarize)/i,
-      /(prompt|instruction|task|role|context|system|template|example|guideline|rule|requirement|command|directive)/i,
+      /\b(prompt|instruction|task|role|context|system|template|example|guideline|rule|requirement|command|directive)\b/i,
       /\b(the following|your task|your role|your goal|your objective|your mission|your purpose)\b/i,
       /\b(step by step|in detail|thoroughly|comprehensive|detailed|carefully|precisely|exactly)\b/i,
       /\{|\}|\[|\]/,
@@ -485,15 +485,12 @@ class PromptExtractor {
       /<.*>.*<\/.*>/,
       /\b(should|must|need to|have to|required)\b/i,
       /\b(ensure|make sure|verify|confirm|check)\b/i,
-      /\n/,
-      /\./,
-      /,/,
       /\b(if|when|then|else|for|while|do)\b/i
     ];
 
-    const hasIndicator = promptIndicators.some(regex => regex.test(trimmed));
+    const hasStrongIndicator = strongPromptIndicators.some(regex => regex.test(trimmed));
     
-    if (hasIndicator) return true;
+    if (hasStrongIndicator) return true;
 
     if (trimmed.length > 50 && trimmed.split(' ').length > 8) {
       return true;
