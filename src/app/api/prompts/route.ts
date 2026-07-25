@@ -44,20 +44,6 @@ function isEnglishLike(value?: string): boolean {
   return !NON_LATIN_CHARS.test(normalized);
 }
 
-function englishPrompt(item: PromptItem): PromptItem | null {
-  if (!hasUsefulTitle(item.title)) return null;
-  if (!isEnglishLike(item.title)) return null;
-  if (!isEnglishLike(item.summary)) return null;
-  if (!isEnglishLike(item.prompt)) return null;
-
-  return {
-    ...item,
-    title: item.title.replace(/\s+/g, " ").trim(),
-    summary: item.summary.replace(/\s+/g, " ").trim(),
-    prompt: item.prompt.replace(/\s+/g, " ").trim(),
-  };
-}
-
 export async function GET(request: Request) {
   const dataset = loadPromptVaultDataset();
   const url = new URL(request.url);

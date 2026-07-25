@@ -28,10 +28,6 @@ function fallbackSummary(item: ExplorerItem): string {
   return `${typeLabel}${publisher}${section}. Open to view full details on the source page.`;
 }
 
-function fallbackPromptSummary(item: PromptItem): string {
-  return `${item.tier} prompt from ${item.repo}. Open to view the full prompt.`;
-}
-
 export function Explorer({ items, publishers }: { items: ExplorerItem[]; publishers: Publisher[] }) {
   const searchParams = useSearchParams();
 

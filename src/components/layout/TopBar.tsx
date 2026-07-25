@@ -1,21 +1,7 @@
 import type { CatalogDataset } from "@/types";
 import Link from "next/link";
 
-const MONTHS = [
-  "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-  "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
-];
-
 export function TopBar({ dataset }: { dataset?: CatalogDataset } = {}) {
-  const stamp = dataset?.generatedAt 
-    ? (() => {
-        const d = new Date(dataset.generatedAt);
-        return Number.isNaN(d.getTime())
-          ? ""
-          : `${MONTHS[d.getUTCMonth()]} ${String(d.getUTCDate()).padStart(2, "0")} ${d.getUTCFullYear()}`;
-      })()
-    : "";
-
   return (
     <div className="topbar">
       <div className="container topbar-inner">
