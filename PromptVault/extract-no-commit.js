@@ -6,7 +6,22 @@ import { glob } from 'glob';
 
 const execAsync = promisify(exec);
 
-const config = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json'), 'utf-8'));
+let config;
+try {
+  const configPath = path.join(process.cwd(), 'config.json');
+  if (!fs.existsSync(configPath)) {
+    throw new Error(`Config file not found: ${configPath}`);
+  }
+  const configContent = fs.readFileSync(configPath, 'utf-8');
+  config = JSON.parse(configContent);
+  
+  if (!config.tiers || Object.keys(config.tiers).length === 0) {
+    throw new Error('Config file must contain a "tiers" object with repository URLs');
+  }
+} catch (error) {
+  console.error('Failed to load config.json:', error.message);
+  process.exit(1);
+}
 
 const CATEGORIES = {
   'coding': ['code', 'programming', 'developer', 'software', 'debug', 'api', 'function', 'algorithm'],
