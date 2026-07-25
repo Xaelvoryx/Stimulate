@@ -542,8 +542,10 @@ class PromptExtractor {
   createPromptObject(data) {
     const { prompt, title, description, filePath, repoPath, repoInfo, repoData, category = '', tags = [] } = data;
     
+    const fullName = repoInfo?.fullName || '';
+    
     return {
-      id: this.generateId(prompt, repoInfo?.fullName, filePath),
+      id: this.generateId(prompt, fullName, filePath),
       slug: this.generateSlug(title),
       title: title || 'Untitled Prompt',
       description: description || '',
@@ -566,8 +568,8 @@ class PromptExtractor {
       exampleInput: '',
       exampleOutput: '',
       author: repoInfo?.owner || '',
-      repository: repoInfo?.fullName || '',
-      repositoryUrl: repoInfo ? `https://github.com/${repoInfo.fullName}` : '',
+      repository: fullName,
+      repositoryUrl: fullName ? `https://github.com/${fullName}` : '',
       repositoryStars: repoData?.stars || 0,
       repositoryForks: repoData?.forks || 0,
       repositoryLicense: repoData?.license || 'Unknown',
