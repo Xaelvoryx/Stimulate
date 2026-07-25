@@ -312,7 +312,7 @@ class PromptExtractor {
     const lines = content.split('\n').filter(line => line.trim());
     
     for (const line of lines) {
-      const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      const values = this.parseCSVLine(line);
       for (const value of values) {
         if (this.isPromptLike(value)) {
           prompts.push(this.createPromptObject({
@@ -329,6 +329,39 @@ class PromptExtractor {
     }
 
     return prompts;
+  }
+
+  parseCSVLine(line) {
+    const values = [];
+    let currentValue = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      const nextChar = line[i + 1];
+      
+      if (char === '"' && inQuotes) {
+        if (nextChar === '"') {
+          currentValue += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else if (char === '"' && !inQuotes) {
+        inQuotes = true;
+      } else if (char === ',' && !inQuotes) {
+        values.push(currentValue.trim());
+        currentValue = '';
+      } else {
+        currentValue += char;
+      }
+    }
+    
+    if (currentValue) {
+      values.push(currentValue.trim());
+    }
+    
+    return values;
   }
 
   extractPromptsFromObject(obj, filePath, repoPath, repoInfo, repoData, prefix = '', depth = 0) {
