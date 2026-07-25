@@ -247,7 +247,7 @@ async function extractFromRepo(repoPath, repoName) {
           }
         }
       } catch (error) {
-        // Skip file errors
+        console.error(`Error processing file ${mdFile}:`, error.message);
       }
     }
   } catch (error) {
