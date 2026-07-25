@@ -176,7 +176,7 @@ async function commitRepoExtraction(repoName, prompts) {
     const commitMessage = `Extract ${prompts.length} prompts from ${repoName}`;
     
     await execAsync('git add output/json/prompts.json', { cwd: process.cwd() });
-    await execAsync(`git commit -m "${commitMessage}"`, { cwd: process.cwd() });
+    await execAsync(`git commit -m "${commitMessage.replace(/"/g, '\\"')}"`, { cwd: process.cwd() });
     
     console.log(`Committed: ${commitMessage}`);
   } catch (error) {
