@@ -1,4 +1,5 @@
 import type { CatalogDataset, CatalogItem } from "@/types";
+import { formatCount } from "@/lib/data/cleanedData";
 
 const TYPE_LABEL: Record<string, string> = {
   skill: "Skill",
@@ -52,7 +53,7 @@ export function FeaturedSkills({ dataset }: { dataset: CatalogDataset }) {
           <h2>Featured in the Catalog</h2>
           <p>
             A handpicked look at standout skills, MCP servers, and agents from the
-            {" "}{dataset.totals.all.toLocaleString()}-entry index.
+            {" "}{formatCount(dataset.totals.all)}-entry index.
           </p>
         </div>
 
