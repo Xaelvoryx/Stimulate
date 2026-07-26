@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { RESOURCES_CONFIG } from '@/lib/constants/resources';
-import { StatisticsHeader } from './StatisticsHeader';
+import { RESOURCES_CONFIG, Category } from '@/lib/constants/resources';
 import { SearchBar } from './SearchBar';
 import { FilterChips } from './FilterChips';
 import { CategoryCard } from './CategoryCard';
+import { ResourceModal } from './ResourceModal';
 
 export function DirectTakeaways() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['mcp', 'ai-agents']));
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
   const filteredCategories = useMemo(() => {
     if (activeFilter === 'all') {
@@ -19,26 +19,17 @@ export function DirectTakeaways() {
     return RESOURCES_CONFIG.filter((cat) => cat.id === activeFilter);
   }, [activeFilter]);
 
-  const toggleCategory = (categoryId: string) => {
-    setExpandedCategories((prev) => {
-      const next = new Set(prev);
-      if (next.has(categoryId)) {
-        next.delete(categoryId);
-      } else {
-        next.add(categoryId);
-      }
-      return next;
-    });
+  const handleCategoryClick = (category: Category) => {
+    setSelectedCategory(category);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedCategory(null);
   };
 
   const handleFilterChange = (filterId: string) => {
     setActiveFilter(filterId);
-    // Expand first category when filter changes
-    if (filterId !== 'all') {
-      setExpandedCategories(new Set([filterId]));
-    } else {
-      setExpandedCategories(new Set(['mcp', 'ai-agents']));
-    }
+    setSelectedCategory(null);
   };
 
   return (
@@ -53,9 +44,6 @@ export function DirectTakeaways() {
         </p>
       </div>
 
-      {/* Statistics */}
-      <StatisticsHeader />
-
       {/* Search */}
       <SearchBar onSearch={setSearchQuery} />
 
@@ -63,14 +51,12 @@ export function DirectTakeaways() {
       <FilterChips activeFilter={activeFilter} onFilterChange={handleFilterChange} />
 
       {/* Categories Grid */}
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredCategories.map((category) => (
           <CategoryCard
             key={category.id}
             category={category}
-            searchQuery={searchQuery}
-            isExpanded={expandedCategories.has(category.id)}
-            onToggle={() => toggleCategory(category.id)}
+            onClick={() => handleCategoryClick(category)}
           />
         ))}
       </div>
@@ -82,6 +68,15 @@ export function DirectTakeaways() {
           <h3 className="text-xl font-semibold text-[var(--ink)] mb-2 font-mono">No results found</h3>
           <p className="text-[var(--muted)] font-mono text-sm">Try adjusting your search or filter criteria</p>
         </div>
+      )}
+
+      {/* Resource Modal */}
+      {selectedCategory && (
+        <ResourceModal
+          category={selectedCategory}
+          isOpen={!!selectedCategory}
+          onClose={handleCloseModal}
+        />
       )}
     </section>
   );
