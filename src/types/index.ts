@@ -60,6 +60,7 @@ export interface CatalogDataset {
     mcps: number;
     agents: number;
     repositories: number;
+    prompts?: number;
   };
   sourceReports: SourceReport[];
   topRepositories: RepositoryRank[];
