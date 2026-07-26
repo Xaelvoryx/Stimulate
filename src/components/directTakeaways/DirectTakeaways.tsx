@@ -39,9 +39,6 @@ export function DirectTakeaways() {
         <h2 className="text-3xl md:text-4xl font-bold text-[var(--ink)] mb-3 font-mono">
           Direct Takeaways
         </h2>
-        <p className="text-base text-[var(--muted)] max-w-3xl mx-auto leading-relaxed">
-          Discover the world's best AI resources, repositories, tools, learning platforms, prompt libraries, and agent ecosystems—all in one place.
-        </p>
       </div>
 
       {/* Search */}
