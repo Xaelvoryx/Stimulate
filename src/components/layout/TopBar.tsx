@@ -1,7 +1,11 @@
 import type { CatalogDataset } from "@/types";
 import Link from "next/link";
+import { getCleanedDataset, formatCount } from "@/lib/data/cleanedData";
 
 export function TopBar({ dataset }: { dataset?: CatalogDataset } = {}) {
+  const activeDataset = dataset || getCleanedDataset();
+  const totals = activeDataset?.totals;
+
   return (
     <div className="topbar">
       <div className="container topbar-inner">
@@ -18,11 +22,14 @@ export function TopBar({ dataset }: { dataset?: CatalogDataset } = {}) {
         </nav>
 
         <div className="topbar-meta">
-          {dataset?.totals && (
+          {totals && (
             <>
-              <span><b>{dataset.totals.skills.toLocaleString()}</b> SKILLS</span>
-              <span><b>{dataset.totals.mcps.toLocaleString()}</b> MCP SERVERS</span>
-              <span><b>{dataset.totals.agents.toLocaleString()}</b> AGENTS</span>
+              <span><b>{formatCount(totals.skills)}</b> SKILLS</span>
+              <span><b>{formatCount(totals.mcps)}</b> MCP SERVERS</span>
+              <span><b>{formatCount(totals.agents)}</b> AGENTS</span>
+              {totals.prompts !== undefined && (
+                <span><b>{formatCount(totals.prompts)}</b> PROMPTS</span>
+              )}
             </>
           )}
         </div>
