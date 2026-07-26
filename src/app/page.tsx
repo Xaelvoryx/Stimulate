@@ -5,6 +5,7 @@ import { CategoryGrid } from "@/components/dashboard/CategoryGrid";
 import { PublisherStrip } from "@/components/dashboard/PublisherStrip";
 import { HowItWorks } from "@/components/dashboard/HowItWorks";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { DirectTakeaways } from "@/components/directTakeaways/DirectTakeaways";
 import { loadDataset } from "@/lib/data/loadData";
 import type { ItemType } from "@/types";
 
@@ -140,6 +141,7 @@ export default function Home() {
       <Hero dataset={pageData} />
 
       <main>
+        <DirectTakeaways />
         <FeaturedSkills dataset={pageData} />
         <CategoryGrid dataset={pageData} />
         <PublisherStrip dataset={pageData} />
