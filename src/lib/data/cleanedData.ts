@@ -1,4 +1,4 @@
-import { loadDataset } from "@/lib/data/loadData";
+import { loadDataset, loadPromptDataset } from "@/lib/data/loadData";
 import type { ItemType } from "@/types";
 
 const ALLOWED_TYPES = new Set<ItemType>(["skill", "mcp", "agent"]);
@@ -63,8 +63,17 @@ function cleanText(value?: string): string | undefined {
   return value.replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").replace(/\s+/g, " ").trim();
 }
 
+export function formatCount(num: number): string {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+  }
+  return num.toString();
+}
+
 export function getCleanedDataset() {
   const data = loadDataset();
+  const promptData = loadPromptDataset();
+  const promptsCount = promptData.items ? promptData.items.length : 0;
 
   const filteredItems = data.items
     .filter(
@@ -92,10 +101,11 @@ export function getCleanedDataset() {
     });
 
   const filteredTotals = {
-    all: filteredItems.length,
+    all: filteredItems.length + promptsCount,
     skills: filteredItems.filter((item) => item.type === "skill").length,
     mcps: filteredItems.filter((item) => item.type === "mcp").length,
     agents: filteredItems.filter((item) => item.type === "agent").length,
+    prompts: promptsCount,
     repositories: 0,
   };
 
