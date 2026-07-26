@@ -52,7 +52,17 @@ export function loadPromptDataset(): PromptDataset {
 
   try {
     const raw = fs.readFileSync(PROMPTS_PATH, "utf8");
-    const parsed = JSON.parse(raw) as PromptDataset;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return {
+        generatedAt: new Date().toISOString(),
+        totalRepos: 0,
+        extractedRaw: 0,
+        totalPrompts: parsed.length,
+        sourceReports: [],
+        items: parsed as any[],
+      };
+    }
     return {
       ...parsed,
       sourceReports: parsed.sourceReports ?? [],
